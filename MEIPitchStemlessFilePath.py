@@ -100,10 +100,10 @@ def PrintNote(pitchid, octid, newFid, ptr, status, syllabus, ptr2, measurePtr):
                  if(status[ptr+1]!='g'):
                     newFid.write("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\" stem.len=\"0\"> </note>\n" % (pitchid[ptr], octid[ptr]))
          elif(status[ptr]=='g'): # grace note
-            newFid.write("<note pname=\"%s\" grace=\"acc\" oct=\"%i\" dur=\"8\" stem.dir=\"up\" stem.len=\"0\"> </note>\n" % (pitchid[ptr-1], octid[ptr]))
+            newFid.write("<note pname=\"%s\" grace=\"acc\" oct=\"%i\" dur=\"8\" stem.dir=\"up\" stem.len=\"0\"> </note>\n" % (pitchid[ptr-1], octid[ptr-1]))
          elif(status[ptr]=='l'): # syllabus
              if(len(status)-1>ptr):
-                newFid.write("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\" stem.len=\"0\">\n " % (pitchid[ptr+1], octid[ptr]))
+                newFid.write("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\" stem.len=\"0\">\n " % (pitchid[ptr+1], octid[ptr+1]))
                 #newFid.write("<verse n=\"1\">\n")
                 #newFid.write("<syl>%s</syl>\n" % syllabus[ptr2])
                 #newFid.write("</verse>\n")
@@ -169,8 +169,8 @@ def NumToPitchClassWithOct(num, mode, final, oct):
              # debug
              # elif (num[ptr] == ','):
              # status[ptr - 1] = 'g'  # the last note is grace note
-         if (num[ptr].isdigit()):
-             m = int(num[ptr])
+         if (num[ptr].isdigit()):# convert digit into pitch-class
+             m = int(num[ptr]) # current digit
              ii = i
              for j in range(m - 1):
                  i = i + 1
