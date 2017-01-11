@@ -1,17 +1,20 @@
  #-*- coding: utf-8 -*-
-import string
+
 import os
-import io
-from io import StringIO
-#import chardet
 import codecs
 from cltk.stem.latin.syllabifier import Syllabifier
+from pymei import *
 format=['txt']
 counter=0
 syllabus = [' ' for i in range (10000)]
+
 word = [' ' for i in range (10000)]
+numOfRealSyl = [0 for i in range(10000)]
+numOfArtiSyl = [0 for i in range(10000)]
 cwd = os.getcwd()
 ChangeDir = False
+syllabifier = Syllabifier()
+log =open('SyllabifierLog.txt','w')
 def ChangeSongTitle(lastdir, faketitle, word, type, changedir):
     for i in range(10000):
         if(word[i]==''):
@@ -44,6 +47,7 @@ def ChunkLyrics(lyrics, word, list):
     sign = 0
     numofSyllabus = 0
     numofWord = 0
+    sumNumofSyl = 0
     begin = end = 0
     for i in range(1, len(lyrics)):
 
@@ -52,18 +56,22 @@ def ChunkLyrics(lyrics, word, list):
             if(begin!=end): #not the first space
                 end = i - 1
                 word[numofWord] = lyrics[begin:end+1]
+                word[numofWord] = word[numofWord].lower() # lower the case so that cltk syl can work!
                 numofWord = numofWord + 1
                 begin = i + 1
             else: begin = 1 # skip the first space
-    syllabifier = Syllabifier()
+
     for i in range(numofWord):
         #print (word[i])
+        numofSyllabus = 0
         tmp = syllabifier.syllabify(word[i])
         #print (syllabifier.syllabify(word[i]))
         for element in tmp:
             list[numofSyllabus] = element
             numofSyllabus = numofSyllabus + 1
-
+            sumNumofSyl = sumNumofSyl + 1
+        numOfArtiSyl[i] = numofSyllabus
+    return sumNumofSyl
 
 
 
@@ -187,7 +195,7 @@ def MelodyLineToMEIFunc(melody, input, newFid, syllabus):
     mode = input[0]
     final = input[1]
 
-
+    counterOfSyl= 0
     length = len(melody)
     PitchClass = [' ' for i in range (len(melody))]
     Oct = [4 for i in range (len(melody))]
@@ -199,6 +207,7 @@ def MelodyLineToMEIFunc(melody, input, newFid, syllabus):
             status[i] = 'g'
         elif(melody[i] == '.'):
             status[i] = 'l'
+            counterOfSyl = counterOfSyl + 1
         elif(melody[i] == '\''):
             status[i] = 's' # ligature, represented by slur
         else:
@@ -243,8 +252,8 @@ def MelodyLineToMEIFunc(melody, input, newFid, syllabus):
     newFid.write("</measure>\n")
 
 
-    WriteToFile(cwd+r'/TemplateButtom.txt',newFid)
-
+    WriteToFile(cwd+r'/TemplateBottom.txt',newFid)
+    return counterOfSyl
     #print PitchClass
     #print Oct
     #measure = length/4+1
@@ -392,8 +401,9 @@ for filex in os.listdir('.'):
                         ChangeSongTitle(LastDir,FakeTitle, word, '.txt', ChangeDir)
                         ChangeDir = False # only deal with the last file in the last dir
                     FakeTitle = blank[ptr + 1:-2]
-                    #print (blank)
+                    print (blank)
                     print(blank, file=fsong)
+                    print(blank, file=log)
 
 
                     mark=4 # write individual song
@@ -403,7 +413,8 @@ for filex in os.listdir('.'):
                 print(blank, file=fsong)
                 if (blank[0:2] == '\ '):  # this is melody with lyric line
                     #print(blank)
-                    #blank = blank.replace("'", '')
+
+
                     blank = blank.replace('\\', '')
 
                     blank = blank.replace('#', '')
@@ -416,24 +427,54 @@ for filex in os.listdir('.'):
                     blank = blank.replace('?', '')
                     blank = blank.replace('+', '')
                     blank = blank.replace('v', '')
-                    for i in range(len(blank)):
-                        if(blank[i].isalpha()):
-                            blank = blank.replace(blank[i],' ')
-                    blank = blank.replace(' ', '')
+
+
                     blank = blank.replace(';', '')
                     blank = blank.replace('$', '')
                     blank = blank.replace('^', '')
                     blank = blank.replace('!', '')
+                    blank = blank.replace('  ', ' ')
+                    # count the syllables for each word
+                    numOfDot = 0
+                    numofWord = 0
+                    for i in range(1, len(blank)):
+                        if (blank[i] == '.'):
+                            numOfDot = numOfDot + 1
+
+                        elif (blank[i] == ' '):  # last word ends, new word begins
+                            numOfRealSyl[numofWord] = numOfDot
+                            numofWord = numofWord + 1
+                            numOfDot = 0
+                            # end
+                    for i in range(len(blank)):
+                        if(blank[i].isalpha()):
+                            blank = blank.replace(blank[i],' ')
+                    blank = blank.replace(' ', '')
                     #print(('melody'+blank))
 
-                    MelodyLineToMEIFunc(blank, mode, fmei, syllabus)#blank2 = blank.replace('.', '')  # melody with syllabus sign
+                    realSyllableNum = MelodyLineToMEIFunc(blank, mode, fmei, syllabus)#blank2 = blank.replace('.', '')  # melody with syllabus sign
+                    if (realSyllableNum != syllabifierNum):
+                        print("Total num of syllables from Andrew     : ", realSyllableNum, file=log)
+
+                        print("Total num of syllables from Syllabifier: ", syllabifierNum, file=log)
+
+
+                        for i in range(numofWord):
+
+                            syllabifier.syllabify(word[i])
+                            if(numOfRealSyl[i]!=numOfArtiSyl[i]):#only output different ones
+                                print(word[i], file=log)
+                                print(numOfRealSyl[i], file=log)
+                                print(numOfArtiSyl[i], "results of Syllabifier:", syllabifier.syllabify(word[i]), file=log)
+                        #str = input("What do you think about it?")
+                        #print(str)
                     #blank = blank.replace(',', '')
                 elif(blank[0:2]=='/ '): # lyric line
                     for i in range(len(blank)):
                          if((blank[i].isalpha() or blank[i] == ' ')==False):
                              blank = blank.replace(blank[i],' ')
                     #print(("lyric" + blank))
-                    ChunkLyrics(blank, word, syllabus)
+                    syllabifierNum = ChunkLyrics(blank, word, syllabus)
 
 
                     '''
@@ -535,6 +576,7 @@ for filex in os.listdir('.'):
 
                     elif(blank.find('|.')!=-1 and blank.find('=')!=-1): #saint's name=letter
                         print (blank)
+                        print(blank, file=log)
                         blank = blank.replace(' ', '')
                         ptr=blank.find('|.')
                         blank=blank.replace('?','-')
@@ -572,6 +614,7 @@ for filex in os.listdir('.'):
                         counter = counter + 1 # num of songs
                         #print (counter)
                         print (blank[ptr+1:-2])
+                        print(blank[ptr+1:-2], file=log)
 
                         fsong=codecs.open(blank[ptr+1:-2]+'.txt','a+','utf-8')
                         fmei = codecs.open(blank[ptr + 1:-2] + '.mei', 'a+', 'utf-8')
