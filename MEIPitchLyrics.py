@@ -1,9 +1,11 @@
  #-*- coding: utf-8 -*-
-
 import os
 import codecs
 from cltk.stem.latin.syllabifier import Syllabifier
-from pymei import *
+import sys
+sys.path.append('/Users/yaolong/Documents/libmei/python/') #otherwise it can not be found!
+import pymei
+
 format=['txt']
 counter=0
 syllabus = [' ' for i in range (10000)]
@@ -15,6 +17,7 @@ cwd = os.getcwd()
 ChangeDir = False
 syllabifier = Syllabifier()
 log =open('SyllabifierLog.txt','w')
+
 def ChangeSongTitle(lastdir, faketitle, word, type, changedir):
     for i in range(10000):
         if(word[i]==''):
@@ -35,9 +38,11 @@ def ChangeSongTitle(lastdir, faketitle, word, type, changedir):
     realtitle = realtitle.lower()
 
     if(changedir==True):
-        os.rename(lastdir+'/'+faketitle+type,lastdir+'/'+realtitle[1].upper()+realtitle[2:-1]+type)
+        if(os.path.isfile(lastdir+'/'+faketitle+type)):
+            os.rename(lastdir+'/'+faketitle+type,lastdir+'/'+realtitle[1].upper()+realtitle[2:-1]+type)
     else:
-        os.rename(os.getcwd() + '/' + faketitle + type, os.getcwd() + '/' +realtitle[1].upper() + realtitle[2:-1] + type) # 0 is a space
+        if(os.path.isfile(os.getcwd() + '/' + faketitle + type)):
+            os.rename(os.getcwd() + '/' + faketitle + type, os.getcwd() + '/' +realtitle[1].upper() + realtitle[2:-1] + type) # 0 is a space
 
 
 def ChunkLyrics(lyrics, word, list):
@@ -56,7 +61,7 @@ def ChunkLyrics(lyrics, word, list):
             if(begin!=end): #not the first space
                 end = i - 1
                 word[numofWord] = lyrics[begin:end+1]
-                word[numofWord] = word[numofWord].lower() # lower the case so that cltk syl can work!
+                #word[numofWord] = word[numofWord].lower() # lower the case so that cltk syl can work!
                 numofWord = numofWord + 1
                 begin = i + 1
             else: begin = 1 # skip the first space
@@ -64,10 +69,10 @@ def ChunkLyrics(lyrics, word, list):
     for i in range(numofWord):
         #print (word[i])
         numofSyllabus = 0
-        tmp = syllabifier.syllabify(word[i])
+        tmp = syllabifier.syllabify(word[i].lower())
         #print (syllabifier.syllabify(word[i]))
         for element in tmp:
-            list[numofSyllabus] = element
+            list[sumNumofSyl] = element
             numofSyllabus = numofSyllabus + 1
             sumNumofSyl = sumNumofSyl + 1
         numOfArtiSyl[i] = numofSyllabus
@@ -88,16 +93,55 @@ def WriteToFile(originalFname, newFid):
      originalFid.close()
 
 
-def PrintMeasure(id, newFid):
+def PrintMeasure(id, doc, section):
      # print ("<measure n=\"%i\" >" %id)
      # print ("<staff>\n")
      # print ("<layer>\n")
-     newFid.write("\n <measure n=\"%i\" >\n" % id)
-     newFid.write("<staff>\n")
-     newFid.write("<layer>\n")
+     measure = pymei.MeiElement('measure')
+     staff = pymei.MeiElement('staff')
+     layer = pymei.MeiElement('layer')
+     section.addChild(measure)
+     measure.addChild(staff)
+     staff.addChild(layer)
+     measure.addAttribute('n', '%i' % id)
+     #newFid.write("\n <measure n=\"%i\" >\n" % id)
+     #newFid.write("<staff>\n")
+     #newFid.write("<layer>\n")
+     return layer
+def AddNote(pname, oct, layer):
+    note = pymei.MeiElement('note')
+    layer.addChild(note)
+    note.addAttribute('pname','%c' %pname)
+    note.addAttribute('oct', '%i' %oct)
+    note.addAttribute('dur', '4')
+    note.addAttribute('stem.dir', 'up')
+    note.addAttribute('stem.len', '0')
+    return note
+def AddGraceNote(pname, oct, layer):
+    note = pymei.MeiElement('note')
+    layer.addChild(note)
+    note.addAttribute('pname','%c' %pname)
+    note.addAttribute('oct', '%i' %oct)
+    note.addAttribute('dur', '8')
+    note.addAttribute('stem.dir', 'up')
+    note.addAttribute('stem.len', '0')
+    note.addAttribute('grace', 'acc')
+    return note
+def AddLyrics(note, syllable):
+    verse = pymei.MeiElement('verse')
+    syl = pymei.MeiElement('syl')
+    note.addChild(verse)
+
+    verse.addAttribute('n','1')
+    syl.setValue(syllable)
+    verse.addChild(syl)
+
+def AddLyrics2(note, syllable):
+    note.addAttribute('syl','%s' % syllable)
 
 
-def PrintNote(pitchid, octid, newFid, ptr, status, syllabus, ptr2, measurePtr):
+
+def PrintNote(pitchid, octid, doc, layer, ptr, status, syllabus, ptr2, measurePtr):
      # print ("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\"> </note>" % (pitchid,octid))
 
 
@@ -106,16 +150,20 @@ def PrintNote(pitchid, octid, newFid, ptr, status, syllabus, ptr2, measurePtr):
                  #print (len(status))
                  #print(ptr)
                  if(status[ptr+1]!='g'):
-                    newFid.write("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\" stem.len=\"0\"> </note>\n" % (pitchid[ptr], octid[ptr]))
+                     AddNote(pitchid[ptr], octid[ptr], layer)
+                    #newFid.write("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\" stem.len=\"0\"> </note>\n" % (pitchid[ptr], octid[ptr]))
          elif(status[ptr]=='g'): # grace note
-            newFid.write("<note pname=\"%s\" grace=\"acc\" oct=\"%i\" dur=\"8\" stem.dir=\"up\" stem.len=\"0\"> </note>\n" % (pitchid[ptr-1], octid[ptr-1]))
+            #newFid.write("<note pname=\"%s\" grace=\"acc\" oct=\"%i\" dur=\"8\" stem.dir=\"up\" stem.len=\"0\"> </note>\n" % (pitchid[ptr-1], octid[ptr-1]))
+            AddGraceNote(pitchid[ptr-1], octid[ptr-1], layer)
          elif(status[ptr]=='l'): # syllabus
              if(len(status)-1>ptr):
-                newFid.write("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\" stem.len=\"0\">\n " % (pitchid[ptr+1], octid[ptr+1]))
-                newFid.write("<verse n=\"1\">\n")
-                newFid.write("<syl>%s</syl>\n" % syllabus[ptr2])
-                newFid.write("</verse>\n")
-                newFid.write("</note>\n")
+                #newFid.write("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\" stem.len=\"0\">\n " % (pitchid[ptr+1], octid[ptr+1]))
+                note = AddNote(pitchid[ptr+1], octid[ptr+1], layer)
+                AddLyrics(note, syllabus[ptr2])
+                #newFid.write("<verse n=\"1\">\n")
+                #newFid.write("<syl>%s</syl>\n" % syllabus[ptr2])
+                #newFid.write("</verse>\n")
+                #newFid.write("</note>\n")
 
          '''elif(status[ptr]=='s'):
              tmpPtr = ptr-1
@@ -189,8 +237,8 @@ def NumToPitchClassWithOct(num, mode, final, oct):
                  i = i % 7
              num = num[0:ptr] + Dict[i] + num[ptr + 1:]
      return (num, oct)
-def MelodyLineToMEIFunc(melody, input, newFid, syllabus):
-
+def MelodyLineToMEIFunc(melody, input, syllabus):
+    doc = pymei.documentFromFile(cwd+'/Template.mei').getMeiDocument()
     ptr = 0
     mode = input[0]
     final = input[1]
@@ -201,7 +249,9 @@ def MelodyLineToMEIFunc(melody, input, newFid, syllabus):
     Oct = [4 for i in range (len(melody))]
 
     status = [' ' for i in range (len(melody))]  # 0 for grace note
-    WriteToFile(cwd+r'/TemplateHeadMeterless.txt',newFid)
+    #WriteToFile(cwd+r'/TemplateHeadMeterless.txt',newFid)
+
+
     for i in range (length):
         if (melody[i] == ','):
             status[i] = 'g'
@@ -218,22 +268,26 @@ def MelodyLineToMEIFunc(melody, input, newFid, syllabus):
     (melody, Oct) = NumToPitchClassWithOct(melody, mode, final, Oct)
     i = 0
     measurePtr = 0
+
+    sections = doc.getElementsByName('section')
+    section = sections[0] # fill in from here
     while(i<length):
 
         if(measurePtr%4==0 and measurePtr!=0):# wrong, bug
             #print ("</measure>")
-            newFid.write("</layer>\n")
-            newFid.write("</staff>\n")
-            newFid.write("</measure>\n")
+            #newFid.write("</layer>\n")
+            #newFid.write("</staff>\n")
+            #newFid.write("</measure>\n")
 
 
-            PrintMeasure(measurePtr/4+1, newFid)
+            #PrintMeasure(measurePtr/4+1, newFid)
+            layer = PrintMeasure(measurePtr/4+1, doc, section)
         elif(measurePtr%4==0):
-            PrintMeasure(measurePtr/4 + 1, newFid)
+            layer = PrintMeasure(measurePtr/4 + 1, doc, section)
         #print melody[i]
         #print NumToPitchClassWithOct(melody[i], mode, final, oct)
 
-        PrintNote(melody, Oct, newFid, i, status, syllabus, ptr, measurePtr)
+        PrintNote(melody, Oct, doc, layer, i, status, syllabus, ptr, measurePtr)
         if(status[i]=='l'):
             i = i + 1
             ptr = ptr + 1
@@ -247,18 +301,32 @@ def MelodyLineToMEIFunc(melody, input, newFid, syllabus):
         i = i + 1
 
     #print "</measure>"
-    newFid.write("</layer>\n")
-    newFid.write("</staff>\n")
-    newFid.write("</measure>\n")
+    #newFid.write("</layer>\n")
+    #newFid.write("</staff>\n")
+    #newFid.write("</measure>\n")
 
 
-    WriteToFile(cwd+r'/TemplateBottom.txt',newFid)
-    return counterOfSyl
+    #WriteToFile(cwd+r'/TemplateBottom.txt',newFid)
+    pymei.documentToFile(doc, FakeTitle + '.mei')
+    return (counterOfSyl, doc)
     #print PitchClass
     #print Oct
     #measure = length/4+1
     #print measure
     #os.system("pause")
+
+
+
+
+
+
+
+
+
+
+
+
+
 for filex in os.listdir('.'):
     if os.path.isfile(filex) and (os.path.splitext(filex)[1][1:].lower() in format)== True:
         print (filex)
@@ -385,7 +453,7 @@ for filex in os.listdir('.'):
                 fI.write(blank)
             elif(mark==3 and blank.find('|g')!=-1):
                 if (blank.find('|g')!=-1): # find the individual song
-                    if(counter != 0): fmei.close()
+                    #if(counter != 0): fmei.close()
                     blank = blank.replace(' ', '')
                     ptr2=blank.find('.')
                     mode=blank[ptr2+1:ptr2+3]
@@ -393,10 +461,11 @@ for filex in os.listdir('.'):
                     blank=blank.replace('?','-')
                     counter = counter + 1 # num of songs
                     #print (counter)
-
+                    signWriteToMei = False # have not wrote to file
                     fsong=codecs.open(blank[ptr+1:-2]+'.txt','a+','utf-8')
-                    fmei=codecs.open(blank[ptr+1:-2]+'.mei','a+','utf-8')
+                    #fmei=codecs.open(blank[ptr+1:-2]+'.mei','a+','utf-8')
                     if (counter != 1):  # change the title of the last song
+
                         ChangeSongTitle(LastDir,FakeTitle, word, '.mei', ChangeDir)
                         ChangeSongTitle(LastDir,FakeTitle, word, '.txt', ChangeDir)
                         ChangeDir = False # only deal with the last file in the last dir
@@ -410,6 +479,7 @@ for filex in os.listdir('.'):
                     continue
             elif(blank.find('|.')==-1 and blank.find('[File')==-1 and blank.find('[file')==-1 and blank.find('|g')==-1 and mark==4): #write lines into a txt file
                 #print (blank)
+                signWriteToMei = True #After writing this line, write to mei file
                 print(blank, file=fsong)
                 if (blank[0:2] == '\ '):  # this is melody with lyric line
                     #print(blank)
@@ -452,7 +522,7 @@ for filex in os.listdir('.'):
                     blank = blank.replace(' ', '')
                     #print(('melody'+blank))
 
-                    realSyllableNum = MelodyLineToMEIFunc(blank, mode, fmei, syllabus)#blank2 = blank.replace('.', '')  # melody with syllabus sign
+                    (realSyllableNum, doc) = MelodyLineToMEIFunc(blank, mode, syllabus)#blank2 = blank.replace('.', '')  # melody with syllabus sign
                     if (realSyllableNum != syllabifierNum):
                         print("Total num of syllables from Andrew     : ", realSyllableNum, file=log)
 
@@ -476,9 +546,12 @@ for filex in os.listdir('.'):
                     #print(("lyric" + blank))
                     syllabifierNum = ChunkLyrics(blank, word, syllabus)
 
+                '''else:# other lines
+                    if(signWriteToMei==True):
+                        pymei.documentToFile(doc,FakeTitle+'.mei') #write to file once
+                        signWriteToMei = False''' # already write to file
 
-                    '''
-                    '''
+
 
 
 
@@ -606,7 +679,7 @@ for filex in os.listdir('.'):
                         #print unicode(blank)
                         #os.mkdir(blank)'''
                     elif(blank.find('|g')!=-1):
-                        if (counter != 0): fmei.close()
+                        #if (counter != 0): fmei.close()
                         blank = blank.replace(' ', '')
                         ptr=blank.find('|g')
                         blank=blank.replace('?','-')
@@ -615,9 +688,9 @@ for filex in os.listdir('.'):
                         #print (counter)
                         print (blank[ptr+1:-2])
                         print(blank[ptr+1:-2], file=log)
-
+                        signWriteToMei = False # have not wrote to file
                         fsong=codecs.open(blank[ptr+1:-2]+'.txt','a+','utf-8')
-                        fmei = codecs.open(blank[ptr + 1:-2] + '.mei', 'a+', 'utf-8')
+                        #fmei = codecs.open(blank[ptr + 1:-2] + '.mei', 'a+', 'utf-8')
                         if (counter != 1):  # change the title of the last song
                             ChangeSongTitle(LastDir, FakeTitle, word, '.mei', ChangeDir)
                             ChangeSongTitle(LastDir, FakeTitle, word, '.txt', ChangeDir)
