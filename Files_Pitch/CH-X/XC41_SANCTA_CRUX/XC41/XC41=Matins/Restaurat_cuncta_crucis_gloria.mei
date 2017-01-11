@@ -1,132 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<mei xmlns="http://www.music-encoding.org/ns/mei">
-
-    <meiHead>
-
-        <fileDesc>
-
-            <titleStmt>
-
-                <title/>
-
-            </titleStmt>
-
-            <pubStmt/>
-
-        </fileDesc>
-
-    </meiHead>
-
-    <music>
-
-        <body>
-
-            <mdiv>
-
-                <score>
-
-                    <scoreDef>
-
-                        <staffGrp> 
-
-                            <staffDef  clef.line="2" clef.shape="G" lines="5" n="1"/>
-
-                            
-
-                        </staffGrp>
-
-                    </scoreDef>
-
-                    <section>
-
- <measure n="1" >
-<staff>
-<layer>
-<note pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="f" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="g" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="a" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-</layer>
-</staff>
-</measure>
-
- <measure n="2" >
-<staff>
-<layer>
-<note pname="b" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="g" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="e" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-</layer>
-</staff>
-</measure>
-
- <measure n="3" >
-<staff>
-<layer>
-<note pname="f" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="e" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="f" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-</layer>
-</staff>
-</measure>
-
- <measure n="4" >
-<staff>
-<layer>
-<note pname="g" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="a" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="b" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="g" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-</layer>
-</staff>
-</measure>
-
- <measure n="5" >
-<staff>
-<layer>
-<note pname="e" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="f" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-<note pname="d" oct="4" dur="4" stem.dir="up" stem.len="0">
- </note>
-</layer>
-</staff>
-</measure>
-					</section> 
-
-                </score>
-
-            </mdiv>
-
-            
-
-        </body>
-
-        
-
-    </music>
-
+<mei xml:id="m-1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.music-encoding.org/ns/mei" meiversion="3.0.0">
+	<meiHead xml:id="m-a5e97217-f1e9-442b-a920-f6967567e5c7">
+		<fileDesc xml:id="m-807c2e31-7032-4282-8472-65bb15995f9d">
+			<titleStmt xml:id="m-4fb31119-f886-4188-9540-24ef1a130ca8">
+				<title xml:id="m-393b9aa7-d334-4d31-ba30-1f8811003a65" />
+			</titleStmt>
+			<pubStmt xml:id="m-21af4736-e340-471c-8e56-8528de306c98" />
+		</fileDesc>
+	</meiHead>
+	<music xml:id="m-caa75f56-8359-49e9-8eb7-17c72cc619da">
+		<body xml:id="m-aff6b204-4e82-40ec-b621-847ec596994e">
+			<mdiv xml:id="m-3f385d1a-2daa-4b12-9140-fd34a8386d52">
+				<score xml:id="m-6f524ece-010a-431e-b71b-a6f456a3c099">
+					<scoreDef xml:id="m-74d01282-6320-4037-9e31-cfef4d737c0d">
+						<staffGrp xml:id="m-eb7107e1-f779-4607-90ce-3b5c7633969d">
+							<staffDef xml:id="m-55ed2f79-bb1f-47ca-848a-97a3841950ae" clef.line="2" clef.shape="G" lines="5" n="1" />
+						</staffGrp>
+					</scoreDef>
+					<section xml:id="m-42a2a1d9-fc54-4996-a702-3ca4eb202403">
+						<measure xml:id="m-f75ac96f-7dec-436d-8a68-5bc3b7c59538" n="1">
+							<staff xml:id="m-fab89d76-a128-42d1-9f87-5dc6a34ecb4b">
+								<layer xml:id="m-4ebf9187-ebe9-444f-9e24-1e393571fb84">
+									<note xml:id="m-6e4d87cd-592c-4c8d-a220-f0a6e02cee6c" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0" syl=" res" />
+									<note xml:id="m-3b484024-5f9e-4f28-a1a6-93e4afd109ee" pname="f" oct="4" dur="4" stem.dir="up" stem.len="0" syl="tau" />
+									<note xml:id="m-d6d5f006-7065-4edc-8566-4aa9252dc27e" pname="g" oct="4" dur="4" stem.dir="up" stem.len="0" syl="rat" />
+									<note xml:id="m-0b827cb0-9d67-4688-b894-dda59d2c4f9f" pname="a" oct="4" dur="4" stem.dir="up" stem.len="0" syl="cun" />
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-250edf31-948b-4187-b6a2-7d1fdc9ee6e3" n="2">
+							<staff xml:id="m-62764652-a50e-4157-a4c9-87675bf9a500">
+								<layer xml:id="m-b3590e5b-8651-45a2-91b6-da19fce4cb10">
+									<note xml:id="m-5b7de242-0e69-49c9-af87-0b9d9cb0e661" pname="b" oct="4" dur="4" stem.dir="up" stem.len="0" syl="cta" />
+									<note xml:id="m-71b18c98-7e9e-44d7-8080-2514d89ebfe1" pname="g" oct="4" dur="4" stem.dir="up" stem.len="0" syl="cru" />
+									<note xml:id="m-b23de187-798e-4611-926a-82b71779e978" pname="e" oct="4" dur="4" stem.dir="up" stem.len="0" syl="cis" />
+									<note xml:id="m-ba789b88-2ec3-478d-96c0-17241333ba20" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0" syl="glo" />
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-b1d0c848-1025-4e42-8180-a1af353bfc73" n="3">
+							<staff xml:id="m-3a65d49d-8b0a-43ff-9ce2-61d11567d625">
+								<layer xml:id="m-94cefb81-40ae-433e-b8a3-3d82257efb65">
+									<note xml:id="m-066e7e1c-a5d1-4132-b5e5-f79621c1fbef" pname="f" oct="4" dur="4" stem.dir="up" stem.len="0" syl="ri" />
+									<note xml:id="m-55670e68-5bd2-4b12-bd88-b7dedecd9750" pname="e" oct="4" dur="4" stem.dir="up" stem.len="0" syl="a" />
+									<note xml:id="m-9852d628-fe23-45c7-ad92-451f415bb584" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0" syl="dei" />
+									<note xml:id="m-f3da04d6-dd01-4310-b248-5ea94c428f11" pname="f" oct="4" dur="4" stem.dir="up" stem.len="0" syl="fi" />
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-a8c27e55-d5f3-4c76-8e78-de106fe77a76" n="4">
+							<staff xml:id="m-3a403f8a-d8e9-4a9b-83ad-0f39ecd3517e">
+								<layer xml:id="m-0b27503b-67f8-4b11-b3ab-6cb720344038">
+									<note xml:id="m-0bf65af8-0131-4425-904e-4a8209aa659d" pname="g" oct="4" dur="4" stem.dir="up" stem.len="0" syl="li" />
+									<note xml:id="m-3b16143c-6b71-4de6-ba10-7a6bd28cab4f" pname="a" oct="4" dur="4" stem.dir="up" stem.len="0" syl="us" />
+									<note xml:id="m-6cb4887b-6591-4eae-a9ca-009f1bd53264" pname="b" oct="4" dur="4" stem.dir="up" stem.len="0" syl="mor" />
+									<note xml:id="m-9712907b-f239-4379-8cc7-5e0aa35975ba" pname="g" oct="4" dur="4" stem.dir="up" stem.len="0" syl="te" />
+								</layer>
+							</staff>
+						</measure>
+						<measure xml:id="m-733633f7-2862-41be-a9ad-5404ec52acec" n="5">
+							<staff xml:id="m-34b0bf8f-82c3-41b5-b0b4-766151bcc68d">
+								<layer xml:id="m-8021ca93-432b-422f-9e52-56821e9a4fce">
+									<note xml:id="m-d74491bc-114e-44c9-8224-5c5d2a8e0193" pname="e" oct="4" dur="4" stem.dir="up" stem.len="0" syl="pro" />
+									<note xml:id="m-bf963d27-d48a-4878-864e-667a3e7af0df" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0" syl="pri" />
+									<note xml:id="m-37173a59-e868-4799-8100-bf67f83b9abd" pname="f" oct="4" dur="4" stem.dir="up" stem.len="0" syl="a" />
+									<note xml:id="m-c8e260a3-b03a-47cc-bd99-c74f53f5a8ff" pname="d" oct="4" dur="4" stem.dir="up" stem.len="0" syl="mi" />
+								</layer>
+							</staff>
+						</measure>
+					</section>
+				</score>
+			</mdiv>
+		</body>
+	</music>
 </mei>
-

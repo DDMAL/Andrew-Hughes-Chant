@@ -133,7 +133,7 @@ def AddLyrics(note, syllable):
     note.addChild(verse)
 
     verse.addAttribute('n','1')
-    syl.tail='%s' % syllable
+    syl.setValue(syllable)
     verse.addChild(syl)
 
 def AddLyrics2(note, syllable):
@@ -159,7 +159,7 @@ def PrintNote(pitchid, octid, doc, layer, ptr, status, syllabus, ptr2, measurePt
              if(len(status)-1>ptr):
                 #newFid.write("<note pname=\"%s\" oct=\"%i\" dur=\"4\" stem.dir=\"up\" stem.len=\"0\">\n " % (pitchid[ptr+1], octid[ptr+1]))
                 note = AddNote(pitchid[ptr+1], octid[ptr+1], layer)
-                AddLyrics2(note, syllabus[ptr2])
+                AddLyrics(note, syllabus[ptr2])
                 #newFid.write("<verse n=\"1\">\n")
                 #newFid.write("<syl>%s</syl>\n" % syllabus[ptr2])
                 #newFid.write("</verse>\n")
