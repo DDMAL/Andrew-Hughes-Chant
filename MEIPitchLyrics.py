@@ -3,7 +3,7 @@ import os
 import codecs
 from cltk.stem.latin.syllabifier import Syllabifier
 import sys
-sys.path.append('/Users/yaolong/Documents/libmei/python/') #otherwise it can not be found!
+#sys.path.append('/Users/yaolong/Documents/libmei/python/') #otherwise it can not be found!
 import pymei
 
 format=['txt']
