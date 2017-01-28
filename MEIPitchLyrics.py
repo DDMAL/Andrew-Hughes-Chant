@@ -5,13 +5,14 @@ from cltk.stem.latin.syllabifier import Syllabifier
 import sys
 sys.path.append('/Users/yaolong/Documents/Projects/libmeiOldVersion/libmei/python') #otherwise it can not be found!
 import pymei
-
+print ('current path='+os.getcwd())
 format = ['txt']
 counter = 0
 syllabus = [' ' for i in range(10000)]
 word = [' ' for i in range(10000)]
 numOfRealSyl = [0 for i in range(10000)]
 numOfArtiSyl = [0 for i in range(10000)]
+melodyLine = ['%','*','-','>','.','\'','=',',','0','1','2','3','4','5','6','7','8','9',' '] # char we need from melody line
 cwd = os.getcwd()
 ChangeDir = False
 syllabifier = Syllabifier()
@@ -487,13 +488,31 @@ if __name__ == "__main__":
                                 if line.find('et.21,=0') != -1:
                                     line = f1.readline()  # discard this line, since it is not a melody line
                                     continue
-                        line = line.replace('\\', '')
+
+                        '''length = len(line)
+                        for i in range(length):
+                            if not line[i] in melodyLine:
+
+                                if not line[i].isalpha():
+                                    line = line.replace(line[i], '')
+                                length = len(line) # update the length of line
+                                if(i>=length):
+                                    break'''
+
+                        ascii = 128
+                        for i in range(ascii):
+                            ASCII = chr(i)
+                            if not ASCII in melodyLine:
+                                if not ASCII.isalpha():
+                                    line = line.replace(ASCII, '')
+                        '''line = line.replace('\\', '')
                         line = line.replace('#', '')
                         line = line.replace('(', '')
                         line = line.replace(')', '')
                         line = line.replace('<',
                                             '')  # there might be < in the text, really need a complete examination!!!
                         line = line.replace('\r', '')
+                        line = line.replace(':', '') # Not replacing this will cause the counter of syllable to go wrong!
                         line = line.replace('\n', '')
                         line = line.replace('?', '')
                         line = line.replace('+', '')
@@ -501,8 +520,13 @@ if __name__ == "__main__":
                         line = line.replace(';', '')
                         line = line.replace('$', '')
                         line = line.replace('^', '')
-                        line = line.replace('!', '')
+                        line = line.replace('!', '')'''
                         line = line.replace('  ', ' ')
+                        for i in range(len(line)):
+                            if not line[i] in melodyLine:
+                                if not line[i].isalpha():
+                                    print('ERROR')
+                                    print(line[i]) # for debug
                         # count the syllables for each word
                         numOfDot = 0
                         numofword = 0
@@ -518,7 +542,7 @@ if __name__ == "__main__":
                             if line[i].isalpha():
                                 line = line.replace(line[i], ' ')
                         line = line.replace(' ', '')
-                        # print(('melody'+line))
+                        print(('melody'+line)) # debug
                         (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
                                                                          syllabus)  # line2 = line.replace('.', '')  # melody with syllabus sign
                         if realSyllableNum != syllabifierNum:
