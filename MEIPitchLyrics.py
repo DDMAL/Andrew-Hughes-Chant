@@ -199,7 +199,7 @@ def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2):
     elif status[ptr] == 'l':  # syllabus
         if (len(status) - 1 > ptr):
             note = add_note(pitchid[ptr + 1], octid[ptr + 1], layer)
-            add_lyrics(note, syllabus[ptr2])
+            #add_lyrics(note, syllabus[ptr2])
         '''elif(status[ptr]=='s'):
              tmpPtr = ptr-1
              while(status[tmpPtr]=='n'):
