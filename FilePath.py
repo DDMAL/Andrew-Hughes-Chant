@@ -5,10 +5,9 @@ from cltk.stem.latin.syllabifier import Syllabifier
 import sys
 sys.path.append('/Users/yaolong/Documents/Projects/libmeiOldVersion/libmei/python') #otherwise it can not be found!
 import pymei
-print ('current path='+os.getcwd())
 format = ['txt']
 counter = 0
-syllabus = [' ' for i in range(10000)]
+syllable = [' ' for i in range(10000)]
 word = [' ' for i in range(10000)]
 numOfRealSyl = [0 for i in range(10000)]
 numOfArtiSyl = [0 for i in range(10000)]
@@ -76,12 +75,12 @@ def chunk_lyrics(lyrics, word, list):
     vowel = ['a', 'e', 'i', 'o', 'u']
     coounter = 0
     sign = 0
-    numofsyllabus = 0
+    numofsyllable = 0
     numofword = 0
     sumnumofsyl = 0
     begin = end = 0
-    for i in range(0, len(lyrics)):
-        if lyrics[i] == ' ':
+    for i, char in enumerate(lyrics):
+        if char == ' ':
             if begin != end:  # not the first space
                 end = i - 1
                 word[numofword] = lyrics[begin:end + 1]
@@ -91,13 +90,13 @@ def chunk_lyrics(lyrics, word, list):
                 begin = 1  # skip the first space
     for i in range(numofword):
         # print (word[i])
-        numofsyllabus = 0
+        numofsyllable = 0
         tmp = syllabifier.syllabify(word[i].lower())
         for element in tmp:
             list[sumnumofsyl] = element
-            numofsyllabus += 1
+            numofsyllable += 1
             sumnumofsyl += 1
-        numOfArtiSyl[i] = numofsyllabus
+        numOfArtiSyl[i] = numofsyllable
     return sumnumofsyl
 
 
@@ -178,7 +177,7 @@ def add_lyrics2(note, syllable):
     note.addAttribute('syl', '{}'.format(syllable))
 
 
-def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2):
+def print_note(pitchid, octid, layer, ptr, status, syllable, ptr2):
     """
     Add notes to MEI stream
     :param pitchid: Char, pitch.
@@ -186,8 +185,8 @@ def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2):
     :param layer: A hirarchical layer before <note>.
     :param ptr: The id of note
     :param status: The status of the note: is it just note, or note attached with lyrics, or grace note.
-    :param syllabus: The possible syllabus attached to the note
-    :param ptr2: The id  of the syllabus
+    :param syllable: The possible syllable attached to the note
+    :param ptr2: The id  of the syllable
     :return:
     """
     if status[ptr] == 'n':
@@ -196,10 +195,10 @@ def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2):
                 add_note(pitchid[ptr], octid[ptr], layer)
     elif status[ptr] == 'g':  # grace note
         add_grace_note(pitchid[ptr - 1], octid[ptr - 1], layer)
-    elif status[ptr] == 'l':  # syllabus
+    elif status[ptr] == 'l':  # syllable
         if (len(status) - 1 > ptr):
             note = add_note(pitchid[ptr + 1], octid[ptr + 1], layer)
-            #add_lyrics(note, syllabus[ptr2])
+            #add_lyrics(note, syllable[ptr2])
         '''elif(status[ptr]=='s'):
              tmpPtr = ptr-1
              while(status[tmpPtr]=='n'):
@@ -222,32 +221,32 @@ def num_to_pitch_class_with_oct(num, final, oct):
     """
     pitchclass = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
     # mod = SearchMode(mode)
-    for ptr in range(len(num)):
+    for ptr, char in enumerate(num):
         for i in range(7):
             if final == pitchclass[i]:
                 break
-        if num[ptr] == '>':
+        if char == '>':
             num = num[0:ptr] + '3' + num[ptr + 1:]
             oct[ptr] += 1
-        elif num[ptr] == '-':
+        elif char == '-':
             num = num[0:ptr] + '6' + num[ptr + 1:]
             oct[ptr] -= 1
-        elif num[ptr] == '0':
+        elif char == '0':
             num = num[0:ptr] + '7' + num[ptr + 1:]
 
             oct[ptr] -= 1
-        elif num[ptr] == '*':
+        elif char == '*':
             num = num[0:ptr] + '5' + num[ptr + 1:]
 
             oct[ptr] -= 1
-        elif num[ptr] == '%':
+        elif char == '%':
             num = num[0:ptr] + '4' + num[ptr + 1:]
             oct[ptr] -= 1
-        elif num[ptr] == '=':
+        elif char == '=':
             num = num[0:ptr] + num[ptr - 1] + num[ptr + 1:]
             oct[ptr] = oct[ptr - 1]
-        if num[ptr].isdigit():  # convert digit into pitch-class
-            m = int(num[ptr])  # current digit
+        if char.isdigit():  # convert digit into pitch-class
+            m = int(char)  # current digit
             ii = i
             for j in range(m - 1):
                 i += 1
@@ -260,12 +259,12 @@ def num_to_pitch_class_with_oct(num, final, oct):
     return num, oct
 
 
-def melody_line_to_MEI_func(melody, input, syllabus):
+def melody_line_to_MEI_func(melody, input, syllable):
     """
     A conclusive function that uses several sub-functions to format MEI file.
     :param melody: The original melody line.
     :param input: Two chars that contain the modality and the tonic center.
-    :param syllabus: The string array to store the syllables.
+    :param syllable: The string array to store the syllables.
     :return:
     """
     doc = pymei.documentFromFile(cwd + '/Template.mei').getMeiDocument()
@@ -297,7 +296,7 @@ def melody_line_to_MEI_func(melody, input, syllabus):
             layer = print_measure(measureptr / 4 + 1, section)
         elif measureptr % 4 == 0:
             layer = print_measure(measureptr / 4 + 1, section)
-        print_note(melody, oct, layer, i, status, syllabus, ptr)
+        print_note(melody, oct, layer, i, status, syllable, ptr)
         if status[i] == 'l':
             i += 1
             ptr += 1
@@ -473,13 +472,13 @@ if __name__ == "__main__":
                         if line.find('/()') == -1 and endOfLyricsSign is True:  # Non-lyric line
                             print("ERROR!")
                         else:
-                            for i in range(len(line)):
-                                if (line[i].isalpha() or line[i] == ' ') is False:
-                                    line = line.replace(line[i],
+                            for i in line:
+                                if (i.isalpha() or i == ' ') is False:
+                                    line = line.replace(i,
                                                         ' ')  # replace anything other than letter or space into a space
                                     # print(("lyric" + line))
                             line = line.replace('  ', ' ')  # multiple space is reduced to one
-                            syllabifierNum = chunk_lyrics(line, word, syllabus)
+                            syllabifierNum = chunk_lyrics(line, word, syllable)
                 elif mark == 4:
                     if line.find('[File') != -1 or line.find('[file') != -1:
                         # find a volume
