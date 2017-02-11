@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+__author__ = "Yaolong Ju (yaolong.ju@mail.mcgill.ca)"
+__date__ = "2017"
 import os
 import codecs
 from cltk.stem.latin.syllabifier import Syllabifier
