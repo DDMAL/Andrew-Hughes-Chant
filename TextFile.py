@@ -165,7 +165,7 @@ def parse(filex, flag1, flag2, flag3):
     f1 = open(filex, 'r', encoding='cp437')  # the actual encoding is cp437, not iso8859!
     line = f1.readline()
     if (flag1 == 0):
-        if os.path.exists("AllTextFiles") is False:
+        if os.path.exists("text_file") is False:
             os.mkdir('text_file')
         os.chdir('text_file')
     while line:
