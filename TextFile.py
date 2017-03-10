@@ -3,7 +3,200 @@ __author__ = "Yaolong Ju (yaolong.ju@mail.mcgill.ca)"
 __date__ = "2017"
 import os
 import codecs
+import sys
 from cltk.stem.latin.syllabifier import Syllabifier
+sys.path.append('/Users/yaolong/Documents/Projects/libmeiOldVersion/libmei/python') #otherwise it can not be found!
+import pymei
+
+def print_measure(id, section):
+    """
+    A function that creates measure element under <section> hierarchy.
+    :param id: Integer, the id of the measure.
+    :param section: The pymei object of <section>
+    :return:
+    """
+    measure = pymei.MeiElement('measure')
+    staff = pymei.MeiElement('staff')
+    layer = pymei.MeiElement('layer')
+    section.addChild(measure)
+    measure.addChild(staff)
+    staff.addChild(layer)
+    measure.addAttribute('n', '{}'.format(id))
+    return layer
+
+
+def add_note(pname, oct, layer):
+    """
+    A function that creates notes element under <layer> hierarchy.
+    :param pname: Char, pitch name
+    :param oct: Int, octave of the note
+    :param layer: The pymei object of <layer>, <note> is under it.
+    :return:
+    """
+    note = pymei.MeiElement('note')
+    layer.addChild(note)
+    note.addAttribute('pname', '{}'.format(pname))
+    note.addAttribute('oct', '{}'.format(oct))
+    note.addAttribute('dur', '4')
+    note.addAttribute('stem.dir', 'up')
+    note.addAttribute('stem.len', '0')
+    return note
+
+
+def add_grace_note(pname, oct, layer):
+    """
+    A function that creates grace notes element under <layer> hierarchy.
+    :param pname: Char, pitch name
+    :param oct: Int, octave of the note
+    :param layer: The pymei object of <layer>
+    :return:
+        """
+    note = pymei.MeiElement('note')
+    layer.addChild(note)
+    note.addAttribute('pname', '{}'.format(pname))
+    note.addAttribute('oct', '{}'.format(oct))
+    note.addAttribute('dur', '8')
+    note.addAttribute('stem.dir', 'up')
+    note.addAttribute('stem.len', '0')
+    note.addAttribute('grace', 'acc')
+    return note
+
+
+def add_lyrics(note, syllable):
+    """
+    A function that creates 'verse' and 'syl' hierarchy under 'note' and adds lyrics
+    under <syl> hierarchy.
+    :param note: The note object of pymei.
+    :param syllable: The syllable to add to MEI file.
+    :return:
+    """
+    verse = pymei.MeiElement('verse')
+    syl = pymei.MeiElement('syl')
+    note.addChild(verse)
+    verse.addAttribute('n', '1')
+    syl.setValue(syllable)
+    verse.addChild(syl)
+
+def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2):
+    """
+    Add notes to MEI stream
+    :param pitchid: Char, pitch.
+    :param octid: Int, octave.
+    :param layer: A hirarchical layer before <note>.
+    :param ptr: The id of note
+    :param status: The status of the note: is it just note, or note attached with lyrics, or grace note.
+    :param syllabus: The possible syllabus attached to the note
+    :param ptr2: The id  of the syllabus
+    :return:
+    """
+    if status[ptr] == 'n':
+        if len(status) - 1 > ptr:
+            if status[ptr + 1] != 'g':
+                add_note(pitchid[ptr], octid[ptr], layer)
+    elif status[ptr] == 'g':  # grace note
+        add_grace_note(pitchid[ptr - 1], octid[ptr - 1], layer)
+    elif status[ptr] == 'l':  # syllabus
+        if (len(status) - 1 > ptr):
+            note = add_note(pitchid[ptr + 1], octid[ptr + 1], layer)
+
+def num_to_pitch_class_with_oct(num, final, oct):
+    """
+    Transform number into pitch-class, which is key-sensitive.
+    :param num: Int, the number which the original encoding uses.
+    :param final: The tonic center.
+    :param oct: The octave array.
+    :return:
+    """
+    pitchclass = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
+    # mod = SearchMode(mode)
+    for ptr in range(len(num)):
+        for i in range(7):
+            if final == pitchclass[i]:
+                break
+        if num[ptr] == '>':
+            num = num[0:ptr] + '3' + num[ptr + 1:]
+            oct[ptr] += 1
+        elif num[ptr] == '-':
+            num = num[0:ptr] + '6' + num[ptr + 1:]
+            oct[ptr] -= 1
+        elif num[ptr] == '0':
+            num = num[0:ptr] + '7' + num[ptr + 1:]
+
+            oct[ptr] -= 1
+        elif num[ptr] == '*':
+            num = num[0:ptr] + '5' + num[ptr + 1:]
+
+            oct[ptr] -= 1
+        elif num[ptr] == '%':
+            num = num[0:ptr] + '4' + num[ptr + 1:]
+            oct[ptr] -= 1
+        elif num[ptr] == '=':
+            num = num[0:ptr] + num[ptr - 1] + num[ptr + 1:]
+            oct[ptr] = oct[ptr - 1]
+        if num[ptr].isdigit():  # convert digit into pitch-class
+            m = int(num[ptr])  # current digit
+            ii = i
+            for j in range(m - 1):
+                i += 1
+                ii += 1
+                if ii >= 7:
+                    oct[ptr] += 1
+                    ii %= 7
+                i %= 7
+            num = num[0:ptr] + pitchclass[i] + num[ptr + 1:]
+    return num, oct
+
+
+def melody_line_to_MEI_func(melody, input, syllabus, faketitle):
+    """
+    A conclusive function that uses several sub-functions to format MEI file.
+    :param melody: The original melody line.
+    :param input: Two chars that contain the modality and the tonic center.
+    :param syllabus: The string array to store the syllables.
+    :return:
+    """
+    doc = pymei.documentFromFile(cwd + '/Template.mei').getMeiDocument()
+    ptr = 0
+    mode = input[0]
+    final = input[1]
+    counterofsyl = 0
+    length = len(melody)
+    pitchclass = [' ' for i in range(len(melody))]
+    oct = [4 for i in range(len(melody))]
+    status = [' ' for i in range(len(melody))]  # 0 for grace note
+    for i in range(length):
+        if melody[i] == ',':
+            status[i] = 'g'
+        elif melody[i] == '.':
+            status[i] = 'l'
+            counterofsyl += 1
+        elif melody[i] == '\'':
+            status[i] = 's'  # ligature, represented by slur
+        else:
+            status[i] = 'n'
+    (melody, oct) = num_to_pitch_class_with_oct(melody, final, oct)
+    i = 0
+    measureptr = 0
+    sections = doc.getElementsByName('section')
+    section = sections[0]  # fill in from here
+    while i < length:
+        if measureptr % 4 == 0 and measureptr != 0:
+            layer = print_measure(measureptr / 4 + 1, section)
+        elif measureptr % 4 == 0:
+            layer = print_measure(measureptr / 4 + 1, section)
+        print_note(melody, oct, layer, i, status, syllabus, ptr)
+        if status[i] == 'l':
+            i += 1
+            ptr += 1
+        if i == length:  # it is possible that the last one of status is l
+            break
+        if status[i] == 'n':
+            if i < length - 1:
+                if status[i + 1] != 'g':
+                    measureptr += 1
+        i += 1
+    pymei.documentToFile(doc, faketitle + '.mei')
+    return counterofsyl, doc
 
 def regulate_name(matrix, line):
     """
@@ -156,8 +349,8 @@ def parse(filex, flag1, flag2, flag3):
 
     ChangeDir = False
 
-    # log = open('SyllabifierLog.txt', 'w')
-    # globalSign = False  # for debug
+    log = open('SyllabifierLog.txt', 'w')
+
     endOfMelodySign = False
     endOfLyricsSign = False  # There will be exceptions where the line is not complete within a line
     print(filex)
@@ -321,6 +514,9 @@ def parse(filex, flag1, flag2, flag3):
                     if flag2 == 1:
                         numOfSameFileName = change_song_title(LastDir, FakeTitle, word, '.txt', ChangeDir,
                                                               numOfSameFileName, flag1)
+                    if flag3 == 1:
+                        numOfSameFileName = change_song_title(LastDir, FakeTitle, word, '.mei', ChangeDir,
+                                                              numOfSameFileName, flag1)
                     ChangeDir = False  # only deal with the last file in the last dir
 
                 FakeTitle = tmpTitle
@@ -338,6 +534,70 @@ def parse(filex, flag1, flag2, flag3):
                 print(line, file=fsong, end='')
             if line[0:2] == '\ ' or line[2:4] == '\ ':  # this is melody with lyric line
                 print(line)
+                if line[-4:-1] == '\()':  # This ensures that the melody line is finished
+                    endOfMelodySign = True
+
+
+                while line.find('\()') == -1 and endOfMelodySign is False:  # nasty exceptions
+                    newline = f1.readline()
+
+                    print(newline, file=fsong)
+                    line += newline  # read new line and append to the original until the end
+                if line.find('\()') == -1 and endOfMelodySign == True:  # exceptions!
+                    print("error")  # There are occasions where there is more than one
+                        # melody lines,
+                    if line.find('\(ve)') != -1:  # deal with exceptions case by case
+                        line = f1.readline()  # discard this line, since it is not a melody line
+                        continue
+                    if line.find('(v in Sarum) ??') != -1:
+                        line = f1.readline()  # discard this line, since it is not a melody line
+                        continue
+                    if line.find('et.21,=0') != -1:
+                        line = f1.readline()  # discard this line, since it is not a melody line
+                        continue
+                ascii = 128
+                for i in range(ascii):
+                    ASCII = chr(i)
+                    if not ASCII in melodyLine:
+                        if not ASCII.isalpha():
+                            line = line.replace(ASCII, '')
+                line = line.replace('  ', ' ')
+                for i in range(len(line)):
+                    if not line[i] in melodyLine:
+                        if not line[i].isalpha():
+                            print('ERROR')
+                            print(line[i])  # for debug
+                # count the syllables for each word
+                numOfDot = 0
+                numofword = 0
+                for i in range(1, len(line)):
+                    if line[i] == '.':
+                        numOfDot += 1
+                    elif line[i] == ' ':  # last word ends, new word begins
+                        numOfRealSyl[numofword] = numOfDot
+                        numofword += 1
+                        numOfDot = 0
+                        # end
+                for i in range(len(line)):
+                    if line[i].isalpha():
+                        line = line.replace(line[i], ' ')
+                line = line.replace(' ', '')
+                print(('melody' + line))  # debug
+                (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
+                                                                 syllable, FakeTitle)  # line2 = line.replace('.', '')  # melody with syllabus sign
+                if realSyllableNum != syllabifierNum:
+                    print("Total num of syllables from Andrew     : ", realSyllableNum, file=log)
+                    print("Total num of syllables from Syllabifier: ", syllabifierNum, file=log)
+                    for i in range(numofword):
+                        syllabifier.syllabify(word[i])
+                        if numOfRealSyl[i] != numOfArtiSyl[i]:  # only output different ones
+                            print(word[i], file=log)
+                            print(numOfRealSyl[i], file=log)
+                            print(numOfArtiSyl[i], "results of Syllabifier:", syllabifier.syllabify(word[i]),
+                                  file=log)
+                            # str = input("What do you think about it?")
+                            # print(str)
+                            # line = line.replace(',', '')
             elif line[0:2] == '/ ' or line[2:4] == '/ ':  # lyric line
                 pointer = line.find('/ ')  # for exception: some lines begins with space than '/ '
                 syllabifierNum = chunk_lyrics(line[pointer:], word, syllable)
@@ -364,6 +624,7 @@ def parse(filex, flag1, flag2, flag3):
         line = f1.readline()
 
 if __name__ == "__main__":
+    cwd = os.getcwd()
     numOfArtiSyl = [0 for i in range(10000)]
     syllabifier = Syllabifier()
     for filex in os.listdir('.'):
@@ -374,10 +635,10 @@ if __name__ == "__main__":
         if os.path.isfile(filex) and (os.path.splitext(filex)[1][1:].lower() in 'txt') and (filex.find('v2-CHNT') != -1) is True:
             print(filex)
             print("Pasring the file, please specify the function you want, 1 means yes; 0 means no")
-            #flag1 = int(input("Generate file structure?"))
-            #flag2 = int(input("Generate text files?"))
-            #flag3 = int(input("Generate MEI structure?"))
-            flag1 = 0
-            flag2 = 1
-            flag3 = 0
+            flag1 = int(input("Generate file structure?"))
+            flag2 = int(input("Generate text files?"))
+            flag3 = int(input("Generate MEI structure?"))
+            #flag1 = 1
+            #flag2 = 1
+            #flag3 = 1
             parse(filex, flag1, flag2, flag3)
