@@ -3,12 +3,11 @@ from TextFile import num_to_pitch_class_with_oct
 class SimpleTest(unittest.TestCase):
     def test_num_to_pitch_class_with_oct(self):
         final = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
-        oct = [4] * 14
         num = '%*-0123456789>'
         for i, element in enumerate(final):
-            oct = [4] * 14
+            oct1 = [4] * 14
             oct2 = [4] * 14
-            (pitch_class, oct) = num_to_pitch_class_with_oct(num, element, oct)
+            (pitch_class, oct1) = num_to_pitch_class_with_oct(num, element, oct1)
             ptr = num.find('1') # get the tonic position
             for j, element2 in enumerate(num):
                 des = i + j - ptr
@@ -19,8 +18,8 @@ class SimpleTest(unittest.TestCase):
                     des -= len(final)
                     oct2[j] += 1
                 self.assertEqual(pitch_class[j], final[des])
-                self.assertEqual(oct[j], oct2[j])
-            print(pitch_class, oct)
+                self.assertEqual(oct1[j], oct2[j])
+            print(pitch_class, oct1)
 
 if __name__ == '__main__':
     unittest.main()
