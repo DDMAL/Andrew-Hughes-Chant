@@ -8,8 +8,7 @@ from cltk.stem.latin.syllabifier import Syllabifier
 sys.path.append('/Users/yaolongju/Documents/Projects/libmei/python') #This is for Mac Mini
 #sys.path.append('/Users/yaolong/Documents/Projects/libmei/python') #This is for the vm on Rescue
 import pymei
-
-
+import re
 def print_measure(id, section):
     """
     A function that creates measure element under <section> hierarchy.
@@ -37,17 +36,29 @@ def add_note(pname, oct, layer, status, ptr, slur):
     :param ptr: The id of note
     :return:
     """
-
-
     measure = layer.getAncestor('measure')
-    note = pymei.MeiElement('note')
-    layer.addChild(note)
-    note.addAttribute('pname', '{}'.format(pname))
-    note.addAttribute('oct', '{}'.format(oct))
-    note.addAttribute('dur', '4')
-    note.addAttribute('stem.dir', 'up')
-    note.addAttribute('stem.len', '0')
-    if(status == 'i'):
+    if  pname == '?' :  # use <space> to indicate a blank spot
+        note = pymei.MeiElement('space')
+        note.setId(status + str(ptr))
+        note.addAttribute('dur', '4')
+        layer.addChild(note)
+        dir = pymei.MeiElement('dir')
+        dir.addAttribute('startid', '#' + status + str(ptr))
+        dir.addAttribute('place', 'below')
+        dir.setValue('?')  # use ? to indicate unknown pitch
+        measure.addChild(dir)
+    else:
+
+
+        note = pymei.MeiElement('note')
+        layer.addChild(note)
+        note.addAttribute('pname', '{}'.format(pname))
+        note.addAttribute('oct', '{}'.format(oct))
+        note.addAttribute('dur', '4')
+        note.addAttribute('stem.dir', 'up')
+        note.addAttribute('stem.len', '0')
+    #note.addAttribute('artic', 'acc')
+    if status == 'i' :
         note.setId(status + str(ptr))
         slur = pymei.MeiElement('slur')
         slur.addAttribute('startid', '#' + status + str(ptr))
@@ -439,7 +450,11 @@ def generate_file_structure(line, ptr1, ptr2):
     folder_name = regulate_name('_.=()-', folder_name) # Make sure that the file name is compatible with Windows
     if os.path.exists(folder_name) is False:
         # The name of directory can not have space!
-        os.mkdir(folder_name)  # create the folder for each volume
+        if(len(folder_name) < 1):
+            folder_name = 'NO_NAME'
+            os.mkdir(folder_name)  # In this case, the name of the folder is empty!
+        else:
+            os.mkdir(folder_name)  # create the folder for each volume
     os.chdir(folder_name)  # go into that folder
 
 
@@ -458,7 +473,7 @@ def parse(filex, flag1, flag2, flag3):
     word = [' ' for i in range(10000)]
     numOfRealSyl = [0 for i in range(10000)]
     melodyLine = ['%', '*', '-', '>', '.', '\'', '=', ',',
-                  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ']  # char we need from melody line
+                  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', '?']  # char we need from melody line
     cwd = os.getcwd()
 
     ChangeDir = False
@@ -578,7 +593,8 @@ def parse(filex, flag1, flag2, flag3):
             line = line.replace('=M', '=Matins')
             line = line.replace('=V', '=Vespers')
             line = line.replace('=W', '=2nd_Vespers')
-            ptr = line.find('|.')
+            ptr = line.find('=')  # remove redundant file name, like 'AD00'
+            #ptr = line.find('|.')
             if (mark == 4):
                 LastDir = os.getcwd()
                 ChangeDir = True
@@ -587,10 +603,10 @@ def parse(filex, flag1, flag2, flag3):
             if line.find('<<MDNM') != -1:
                 ptr2 = line.find('<<MDNM')
                 if (flag1 == 1):
-                    generate_file_structure(line, ptr + 2, ptr2)
+                    generate_file_structure(line, ptr + 1, ptr2)
             else:  # always deal with exception
                 if (flag1 == 1):
-                    generate_file_structure(line, ptr + 2, -2)
+                    generate_file_structure(line, ptr + 1, -2)
 
             mark = 3  # write saint= letter head file
             # continue
@@ -599,9 +615,13 @@ def parse(filex, flag1, flag2, flag3):
                 fI = codecs.open('__LetterHeader.txt', 'a+', 'utf-8')
                 print(line)
                 fI.write(line)
+                #if(line!='\n'):
+                    #print('it is not blank all the time')
         elif (mark == 3 or mark == 4) and line.find('|g') != -1 and line.find('=') != -1 and line.find('.') != -1:
             if line.find('|g') != -1:  # find the individual song
+
                 # if(counter != 0): fmei.close()
+                filename = line  # reserve the original file name
                 line = line.replace(' ', '')
                 ptr2 = line.find('.')
                 mode = line[ptr2 + 1:ptr2 + 3]  # get the mode and tonal center
@@ -646,6 +666,7 @@ def parse(filex, flag1, flag2, flag3):
                 '|g') == -1 and mark == 4):  # write lines into a txt file
             # print (line)
             signWriteToMei = True  # After writing this line, write to mei file
+            line = re.sub(r'\(!\d\)', '', line)  # need to use '\' to match '()' to replace (!1) exception
             if(flag2 == 1):
                 print(line, file=fsong, end='')
             if line[0:2] == '\ ' or line[2:4] == '\ ':  # this is melody with lyric line
@@ -654,7 +675,6 @@ def parse(filex, flag1, flag2, flag3):
                     endOfMelodySign = True
                 while line.find('\()') == -1 and endOfMelodySign is False:  # nasty exceptions
                     newline = f1.readline()
-
                     print(newline, file=fsong)
                     line += newline  # read new line and append to the original until the end
                 if line.find('\()') == -1 and endOfMelodySign == True:  # exceptions!
@@ -700,18 +720,20 @@ def parse(filex, flag1, flag2, flag3):
                 (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
                                                                  syllable, FakeTitle)  # line2 = line.replace('.', '')  # melody with syllabus sign
                 if realSyllableNum != syllabifierNum:
-                    print("Total num of syllables from Andrew     : ", realSyllableNum, file=log)
+                    print(filename, file=log)
+                    print("Total num of syllables from Hughes    : ", realSyllableNum, file=log)
                     print("Total num of syllables from Syllabifier: ", syllabifierNum, file=log)
                     for i in range(numofword):
                         syllabifier.syllabify(word[i])
                         if numOfRealSyl[i] != numOfArtiSyl[i]:  # only output different ones
                             print(word[i], file=log)
-                            print(numOfRealSyl[i], file=log)
-                            print(numOfArtiSyl[i], "results of Syllabifier:", syllabifier.syllabify(word[i]),
+                            print(numOfRealSyl[i], "syllables from Hughes' encoding", file=log)
+                            print(numOfArtiSyl[i], "syllables from the Syllabifier:", syllabifier.syllabify(word[i]),
                                   file=log)
                             # str = input("What do you think about it?")
                             # print(str)
                             # line = line.replace(',', '')
+                    print('---------------------------------------', file=log)
             elif line[0:2] == '/ ' or line[2:4] == '/ ':  # lyric line
                 pointer = line.find('/ ')  # for exception: some lines begins with space than '/ '
                 syllabifierNum = chunk_lyrics(line[pointer:], word, syllable)
