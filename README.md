@@ -32,4 +32,4 @@ There are cases where the mensual notations cannot be rendered, so some common m
 
 (1) ```Plica``` is represented as ```grace note```, so when you see the score has a grace note, it actually indicates a plica.
 
-(2) ```Ligature is``` represented as ```slur```.
+(2) ```Ligature``` is represented as ```slur```.
