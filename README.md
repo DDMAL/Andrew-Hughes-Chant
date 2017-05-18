@@ -30,6 +30,6 @@ First install libmei, then install the Python bindings.
 
 There are cases where the mensual notations cannot be rendered, so some common music notation symbol is used:
 
-(1) Plica is replaced by grace note, so when you see the score has a grace note, it actually indicates a plica.
+(1) ```Plica``` is represented by ```grace note```, so when you see the score has a grace note, it actually indicates a plica.
 
-(2) Ligature is represented as a slur.
+(2) ```Ligature is``` represented as ```slur```.
