@@ -19,7 +19,8 @@ If you want to generate these ```.mei``` files on your own, just run ```Parser.p
 
 In order to run ```Parser.py```, this is what you need to do:
 
-Note that you need Python3 ,cltk, and Pymei toolkit to run this script. You can install cltk toolkit simply by running: ``` pip3 install cltk```in the terminal.  
+# How to run Parser.py?
+Note that you need Python3 ,cltk, and Pymei toolkit to run this script. You can install cltk toolkit simply by running: ``` pip3 install cltk```in the terminal.  
 
 To install Pymei, please refer to: https://github.com/DDMAL/libmei/wiki.
 
