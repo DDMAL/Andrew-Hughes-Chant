@@ -24,4 +24,4 @@ Note that you need Python3 ,cltk, and Pymei toolkit to run this script. You can 
 
 To install Pymei, please refer to: https://github.com/DDMAL/libmei/wiki.
 
-First install libmei, then install the Python bingings.
+First install libmei, then install the Python bindings.
