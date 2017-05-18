@@ -25,3 +25,11 @@ Note that you need Python3 ,cltk, and Pymei toolkit to run this script. You can 
 To install Pymei, please refer to: https://github.com/DDMAL/libmei/wiki.
 
 First install libmei, then install the Python bindings.
+
+# How is the chant encoded into MEI format?
+
+There are cases where the mensual notations cannot be rendered, so some common music notation symbol is used:
+
+(1) Plica is replaced by grace note, so when you see the score has a grace note, it actually indicates a plica.
+
+(2) Ligature is represented as a slur.
