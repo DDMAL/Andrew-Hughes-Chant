@@ -9,6 +9,56 @@ sys.path.append('/Users/yaolongju/Documents/Projects/libmei/python') #This is fo
 #sys.path.append('/Users/yaolong/Documents/Projects/libmei/python') #This is for the vm on Rescue
 import pymei
 import re
+
+
+def add_each_meta_data(parent, elementname, content):
+    """
+    Add each meta-data to the header
+    :param parent:
+    :param element:
+    :param content:
+    :return:
+    """
+    element = pymei.MeiElement(elementname)
+    element.setValue(content)
+    parent.addChild(element)
+    return parent
+
+
+def add_meta_data(doc, mode=None, final=None, title=None, office=None, saint=None, feast=None, lyrics=None):
+    """
+    Add meta-data to MEI file.
+    :param doc:
+    :param mode:
+    :param final:
+    :param title:
+    :param office:
+    :param saint:
+    :param feast:
+    :param lyrics:
+    :return:
+    """
+    if title != None :
+        TITLES = doc.getElementsByName('title')
+        TITLE = TITLES[0]
+        TITLE.setValue(title) # add title
+    TITLESTATEMENTS = doc.getElementsByName('fileDesc')
+    TITLESTATEMENT = TITLESTATEMENTS[0]
+    if mode != None :
+        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'mode', mode)
+    if final != None :
+        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'final', final)
+    if office != None:
+        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'office', office)
+    if saint != None:
+        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'saint', saint)
+    if feast != None:
+        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'feast', feast)
+    if lyrics != None:
+        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'lyrics', lyrics)
+    return doc
+
+
 def print_measure(id, section):
     """
     A function that creates measure element under <section> hierarchy.
@@ -157,9 +207,6 @@ def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2, slur):
     return 0, slur
 
 
-
-
-
 def num_to_pitch_class_with_oct(num, final, oct):
     """
     Transform number into pitch-class, which is key-sensitive.
@@ -207,6 +254,7 @@ def num_to_pitch_class_with_oct(num, final, oct):
             num = num[0:ptr] + pitchclass[i] + num[ptr + 1:]
     return num, oct
 
+
 def fill_in_status(melody, status, counterofsyl):
     """
     fill in the status list
@@ -239,15 +287,15 @@ def fill_in_slur_status(status):
     for i, item in enumerate(status):  # go over the status list again to specify which notes are connected with slurs
         if item == 's':
             j = i - 1  # see how many notes before slur (connected by a slur)
-            while (status[j] == 'n'):
+            while  status[j] == 'n' :
                 j -= 1
             numofnoteswithslur = i - j - 1
-            if (numofnoteswithslur == 1):
+            if  numofnoteswithslur == 1 :
                 status[j + 1] = 'i'
-            elif (numofnoteswithslur == 2):
+            elif  numofnoteswithslur == 2 :
                 status[j + 1] = 'i'
                 status[j + 2] = 't'
-            elif (numofnoteswithslur > 2):
+            elif  numofnoteswithslur > 2 :
                 status[j + 1] = 'i'
                 status[i - 1] = 't'
                 for k in range(j + 2, i - 1):
@@ -259,12 +307,12 @@ def fill_in_slur_status(status):
                         break
 
             numofnoteswithslur = j - i - 1
-            if (numofnoteswithslur == 1):
+            if  numofnoteswithslur == 1 :
                 status[i + 1] = 'i'
-            elif (numofnoteswithslur == 2):
+            elif  numofnoteswithslur == 2 :
                 status[i + 1] = 'i'
                 status[i + 2] = 't'
-            elif (numofnoteswithslur > 2):
+            elif  numofnoteswithslur > 2 :
                 status[i + 1] = 'i'
                 status[j - 1] = 't'
                 for k in range(i + 2, j - 1):
@@ -273,18 +321,20 @@ def fill_in_slur_status(status):
     return status
 
 
-def melody_line_to_MEI_func(melody, input, syllabus, faketitle):
+def melody_line_to_MEI_func(melody, input, syllabus, faketitle, saint, office):
     """
-    A conclusive function that uses several sub-functions to format MEI file.
+    A conclusive function that uses several sub-functions to format MEI file, and add meta-data to MEI files, except for title.
     :param melody: The original melody line.
     :param input: Two chars that contain the modality and the tonic center.
     :param syllabus: The string array to store the syllables.
     :return:
     """
+
     doc = pymei.documentFromFile(cwd + '/Template.mei').getMeiDocument()
     ptr = 0
     mode = input[0]
     final = input[1].lower()
+    doc = add_meta_data(doc=doc, mode=mode, final=final, saint=saint, office=office)
     #if final not in 'abcdefg':
         #print("final not found")
         #input("??")
@@ -314,7 +364,7 @@ def melody_line_to_MEI_func(melody, input, syllabus, faketitle):
             break
         measureptr += increment
         i += 1
-    pymei.documentToFile(doc, faketitle + '.mei')
+
     return counterofsyl, doc
 
 
@@ -333,12 +383,12 @@ def regulate_name(matrix, line):
     return line
 
 
-def change_song_title(lastdir, faketitle, word, type, changedir, counter, flag):
+def change_song_title(doc, lastdir, faketitle, word, type, changedir, counter, flag):
     """
     This is a function that changes the file title which is indicated in the text file.
     Since a name is needed to create a file, the files is first created, then renamed with
     a right name, which can be found in the chant lyrics line. This function is used to change
-    title of the last chant.
+    title of the last chant. Also, it closes the MEI file and then add title meta-data to that.
     :param lastdir: It is possible that last chant and current chant are in a different directory
     :param faketitle: The old file name.
     :param word: Lyrics line, where the new title is hidden
@@ -368,6 +418,12 @@ def change_song_title(lastdir, faketitle, word, type, changedir, counter, flag):
         realtitle = realtitle + word[j] + '_'
     realtitle = realtitle.lower()
     realtitle = regulate_name('_', realtitle)
+    add_meta_data(doc=doc, title=realtitle[0].upper() + realtitle[1:-1])
+    if(type == '.mei'):
+        if changedir is True:
+            pymei.documentToFile(doc, os.path.join(lastdir, faketitle + '.mei'))  # save
+        else:
+            pymei.documentToFile(doc, faketitle + '.mei')
     if flag == 0: # no file structure
         if os.path.isfile(os.path.join(os.getcwd(), faketitle + type)):
             if os.path.isfile(os.path.join(os.getcwd(), realtitle[0].upper() + realtitle[1:-1] + type)) == False: # if the read title does not exist
@@ -398,7 +454,7 @@ def change_song_title(lastdir, faketitle, word, type, changedir, counter, flag):
                               os.path.join(os.getcwd(),
                                            realtitle[0].upper() + realtitle[1:-1] + '_' + str(counter) + type))
                     counter += 1
-    return counter
+    return counter, doc
 
 
 def chunk_lyrics(lyrics, word, list):
@@ -440,7 +496,7 @@ def chunk_lyrics(lyrics, word, list):
 
 def generate_file_structure(line, ptr1, ptr2):
     """
-    Generate the hierarchical folders
+    Generate the hierarchical folders, and return that name.
     :param line: The current line which contained the desired name of the folder
     :param ptr1: The pointer which points the beginning of the file name
     :param ptr2: The pointer which points the end of the file name
@@ -456,6 +512,7 @@ def generate_file_structure(line, ptr1, ptr2):
         else:
             os.mkdir(folder_name)  # create the folder for each volume
     os.chdir(folder_name)  # go into that folder
+    return line[ptr1:ptr2]
 
 
 def parse(filex, flag1, flag2, flag3):
@@ -467,6 +524,7 @@ def parse(filex, flag1, flag2, flag3):
     :param flag3: Whether to generate the MEI file
     :return:
     """
+
     counter = 0
     numOfSameFileName = 0
     syllable = [' ' for i in range(10000)]
@@ -548,22 +606,22 @@ def parse(filex, flag1, flag2, flag3):
                 if line.find(')') != -1:
                     ptr4 = line.find(')')  # only keep the saint's name
                     if (flag1 == 1):
-                        generate_file_structure(line, ptr, ptr4)
+                        saint = generate_file_structure(line, ptr, ptr4)  # real saint's name
                 else:
                     if (flag1 == 1):
-                        generate_file_structure(line, ptr, -1)
+                        saint = generate_file_structure(line, ptr, -1)  # real saint's name
                 if line.find('|.') != -1:
                     ptr2 = line.find('|.')
                     if line.find('_(') != -1:
                         ptr3 = line.find('_(')
                         if (flag1 == 1):
-                            generate_file_structure(line, ptr2 + 2, ptr3)
+                            generate_file_structure(line, ptr2 + 2, ptr3)  # original file name, invalid!
                     else:
                         if (flag1 == 1):
-                            generate_file_structure(line, ptr2 + 2, ptr - 2)
+                            generate_file_structure(line, ptr2 + 2, ptr - 2)  # original file name, invalid!
                 else:  # always deal with exception
                     if (flag1 == 1):
-                        generate_file_structure(line, 0, ptr - 2)
+                        saint = generate_file_structure(line, 0, ptr - 2)  # never happened actually
             else:  # if there is an exception, do as usual
                 ptr = line.find('|.')
                 if (mark == 4):
@@ -573,7 +631,7 @@ def parse(filex, flag1, flag2, flag3):
                         os.chdir(os.pardir)
                         os.chdir(os.pardir)
                         os.chdir(os.pardir)
-                        generate_file_structure(line, ptr + 2, -2)
+                        saint = generate_file_structure(line, ptr + 2, -2)  # never happened actually
             mark = 2  # write saint file
             # continue
         elif mark == 2 and line.find('|.') == -1:
@@ -603,10 +661,11 @@ def parse(filex, flag1, flag2, flag3):
             if line.find('<<MDNM') != -1:
                 ptr2 = line.find('<<MDNM')
                 if (flag1 == 1):
-                    generate_file_structure(line, ptr + 1, ptr2)
+                    office = generate_file_structure(line, ptr + 1, ptr2)
+
             else:  # always deal with exception
                 if (flag1 == 1):
-                    generate_file_structure(line, ptr + 1, -2)
+                    office = generate_file_structure(line, ptr + 1, -2)
 
             mark = 3  # write saint= letter head file
             # continue
@@ -645,13 +704,14 @@ def parse(filex, flag1, flag2, flag3):
                 endOfLyricsSign = False
                 endOfMelodySign = False  # Update the sign, since it is a new song!
                 # fmei=codecs.open(line[ptr+1:-2]+'.mei','a+','utf-8')
+
                 if counter != 1:  # change the title of the last song
                     # change_song_title(LastDir, FakeTitle, word, '.mei', ChangeDir)
                     if flag2 == 1:
-                        numOfSameFileName = change_song_title(LastDir, FakeTitle, word, '.txt', ChangeDir,
+                        numOfSameFileName, doc = change_song_title(doc, LastDir, FakeTitle, word, '.txt', ChangeDir,
                                                               numOfSameFileName, flag1)
                     if flag3 == 1:
-                        numOfSameFileName = change_song_title(LastDir, FakeTitle, word, '.mei', ChangeDir,
+                        numOfSameFileName, doc = change_song_title(doc, LastDir, FakeTitle, word, '.mei', ChangeDir,
                                                               numOfSameFileName, flag1)
                     ChangeDir = False  # only deal with the last file in the last dir
 
@@ -718,7 +778,8 @@ def parse(filex, flag1, flag2, flag3):
                 line = line.replace(' ', '')
                 print(('melody' + line))  # debug
                 (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
-                                                                 syllable, FakeTitle)  # line2 = line.replace('.', '')  # melody with syllabus sign
+                                                                 syllable, FakeTitle, saint, office)  # line2 = line.replace('.', '')  # melody with syllabus sign
+
                 if realSyllableNum != syllabifierNum:
                     print(filename, file=log)
                     print("Total num of syllables from Hughes    : ", realSyllableNum, file=log)
