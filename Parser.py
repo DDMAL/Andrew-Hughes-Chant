@@ -364,7 +364,6 @@ def melody_line_to_MEI_func(melody, input, syllabus, faketitle, saint, office):
             break
         measureptr += increment
         i += 1
-
     return counterofsyl, doc
 
 
@@ -383,6 +382,42 @@ def regulate_name(matrix, line):
     return line
 
 
+def syllabifier_post_processing(list):
+    """
+    Fix errors in the syllabifier and output the right syllabification results
+    :param list: the syllabified result that needs to correct
+    :return:
+    """
+    twovowel = ['ae', 'eu', 'ei', 'ii', 'oe', 'ui']
+    for i, element in enumerate(list):
+        print(list)
+        if(element == 'ch' or element == 'th'):  # this is not a syllable, need to be combined with the next one
+            if (i < len(list) - 1):
+                list[i] = list[i] + list[i + 1]
+                list.remove(list[i + 1])
+                print (list)
+                return list
+        if element.find('eii') != -1:
+            print('debug')
+        for vowel in twovowel:  # These cases should be two syllables, not one, for cases like "Reiixxx", only slice once
+            #print(vowel)
+            if vowel in element:
+                ptr = element.find(vowel)
+                tmp = list[i]
+                list[i] = tmp[:ptr + 1]
+                list.insert(i+1, tmp[ptr + 1:])
+                print(list)
+                return list
+        if(i < len(list) - 1):
+            print(list[i][-1], list[i+1][0])  # for debug
+            if(list[i][-1] == 'e' and list[i + 1][0] == 'e') or (list[i][-1] == 'i' and list[i + 1][0] == 'e') or (list[i][-1] == 'u' and list[i + 1][0] == 'a') or (list[i][-1] == 'u' and list[i + 1][0] == 'o') or (list[i][-1] == 'u' and list[i + 1][0] == 'u'):
+                print("found", list[i][-1], list[i + 1][0])
+                list[i] = list[i] + list[i+1]
+                del list[i+1]
+                return list
+    return list
+
+
 def change_song_title(doc, lastdir, faketitle, word, type, changedir, counter, flag):
     """
     This is a function that changes the file title which is indicated in the text file.
@@ -399,7 +434,6 @@ def change_song_title(doc, lastdir, faketitle, word, type, changedir, counter, f
     :param flag: indicates whether the file strcuture is created
     :return:
     """
-
     for i in range(10000):
         if word[i] == '':
             break
@@ -486,6 +520,7 @@ def chunk_lyrics(lyrics, word, list):
         # print (word[i])
         numofsyllable = 0
         tmp = syllabifier.syllabify(word[i].lower())
+
         for element in tmp:
             list[sumnumofsyl] = element
             numofsyllable += 1
@@ -524,20 +559,17 @@ def parse(filex, flag1, flag2, flag3):
     :param flag3: Whether to generate the MEI file
     :return:
     """
-
-    counter = 0
-    numOfSameFileName = 0
     syllable = [' ' for i in range(10000)]
     word = [' ' for i in range(10000)]
     numOfRealSyl = [0 for i in range(10000)]
+    counter = 0
+    numOfSameFileName = 0
+
     melodyLine = ['%', '*', '-', '>', '.', '\'', '=', ',',
                   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', '?']  # char we need from melody line
     cwd = os.getcwd()
-
     ChangeDir = False
-
     log = open('SyllabifierLog.txt', 'w')
-
     endOfMelodySign = False
     endOfLyricsSign = False  # There will be exceptions where the line is not complete within a line
     print(filex)
@@ -551,7 +583,6 @@ def parse(filex, flag1, flag2, flag3):
     while line:
         line = line.replace('«', '<<')
         line = line.replace('»', '>>')
-
         if (line.find('[File') != -1 or line.find('[file') != -1) and (mark == 0 or mark == 4):
             print(line)  # show all the volumes
             line = line.replace(' ', '')  # The name of directory can not have space!
@@ -662,11 +693,9 @@ def parse(filex, flag1, flag2, flag3):
                 ptr2 = line.find('<<MDNM')
                 if (flag1 == 1):
                     office = generate_file_structure(line, ptr + 1, ptr2)
-
             else:  # always deal with exception
                 if (flag1 == 1):
                     office = generate_file_structure(line, ptr + 1, -2)
-
             mark = 3  # write saint= letter head file
             # continue
         elif mark == 3 and line.find('|g') == -1:
@@ -678,9 +707,10 @@ def parse(filex, flag1, flag2, flag3):
                     #print('it is not blank all the time')
         elif (mark == 3 or mark == 4) and line.find('|g') != -1 and line.find('=') != -1 and line.find('.') != -1:
             if line.find('|g') != -1:  # find the individual song
-
                 # if(counter != 0): fmei.close()
                 filename = line  # reserve the original file name
+                if filename.find('|g343 =MV10.8v') != -1:
+                    print(filename)
                 line = line.replace(' ', '')
                 ptr2 = line.find('.')
                 mode = line[ptr2 + 1:ptr2 + 3]  # get the mode and tonal center
@@ -725,13 +755,15 @@ def parse(filex, flag1, flag2, flag3):
         elif (line.find('|.') == -1 and line.find('[File') == -1 and line.find('[file') == -1 and line.find(
                 '|g') == -1 and mark == 4):  # write lines into a txt file
             # print (line)
+            if (os.getcwd().find('CH-C') != -1):
+                print('debug')
             signWriteToMei = True  # After writing this line, write to mei file
             line = re.sub(r'\(!\d\)', '', line)  # need to use '\' to match '()' to replace (!1) exception
             if(flag2 == 1):
                 print(line, file=fsong, end='')
             if line[0:2] == '\ ' or line[2:4] == '\ ':  # this is melody with lyric line
                 print(line)
-                if line[-4:-1] == '\()':  # This ensures that the melody line is finished
+                if line.find('\()')!= -1 or line.find('\ ()') != -1:  # This ensures that the melody line is finished
                     endOfMelodySign = True
                 while line.find('\()') == -1 and endOfMelodySign is False:  # nasty exceptions
                     newline = f1.readline()
@@ -767,7 +799,8 @@ def parse(filex, flag1, flag2, flag3):
                 for i in range(1, len(line)):
                     if line[i] == '.':
                         numOfDot += 1
-                    elif line[i] == ' ':  # last word ends, new word begins
+                    elif line[i] == ' ' and numOfDot!= 0:  # last word ends, new word begins, and the numOfDot should
+                        # be non-zero, since there are exceptions! (Syllabifier and Hughes' results mismatch)
                         numOfRealSyl[numofword] = numOfDot
                         numofword += 1
                         numOfDot = 0
@@ -779,25 +812,39 @@ def parse(filex, flag1, flag2, flag3):
                 print(('melody' + line))  # debug
                 (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
                                                                  syllable, FakeTitle, saint, office)  # line2 = line.replace('.', '')  # melody with syllabus sign
-
                 if realSyllableNum != syllabifierNum:
-                    print(filename, file=log)
-                    print("Total num of syllables from Hughes    : ", realSyllableNum, file=log)
-                    print("Total num of syllables from Syllabifier: ", syllabifierNum, file=log)
+                    flag4 = 0
+                    counter2 = 0  # calculate the number of syllables produced by the Syllabifier
                     for i in range(numofword):
-                        syllabifier.syllabify(word[i])
                         if numOfRealSyl[i] != numOfArtiSyl[i]:  # only output different ones
-                            print(word[i], file=log)
-                            print(numOfRealSyl[i], "syllables from Hughes' encoding", file=log)
-                            print(numOfArtiSyl[i], "syllables from the Syllabifier:", syllabifier.syllabify(word[i]),
-                                  file=log)
+                            syllables = syllabifier.syllabify(word[i])
+                            syllables = syllabifier_post_processing(syllables)  # only post-process it when they do not agree!
+                            for j in range(counter2, counter2 + numOfArtiSyl[i]):
+                                del syllable[counter2]
+                            for j in range(counter2, counter2 + len(syllables)):
+                                syllable.insert(j, syllables[j - counter2])
+                            if(len(syllables) != numOfRealSyl[i]):  # real discrepancies
+                                if(flag4 == 0):
+                                    print('---------------------------------------', file=log)
+                                    print(filename + os.getcwd(), file=log)
+
+                                    print("Total num of syllables from Hughes    : ", realSyllableNum, file=log)
+                                    print("Total num of syllables from Syllabifier: ", syllabifierNum, file=log)
+                                    flag4 = 1
+                                print(word[i], file=log)
+                                print(numOfRealSyl[i], "syllables from Hughes' encoding", file=log)
+                                print(numOfArtiSyl[i], "syllables from the Syllabifier:", syllables,
+                                      file=log)
                             # str = input("What do you think about it?")
                             # print(str)
                             # line = line.replace(',', '')
-                    print('---------------------------------------', file=log)
+                            counter2 += len(syllables)
+                        else:
+                            counter2 += numOfArtiSyl[i]
             elif line[0:2] == '/ ' or line[2:4] == '/ ':  # lyric line
                 pointer = line.find('/ ')  # for exception: some lines begins with space than '/ '
-                syllabifierNum = chunk_lyrics(line[pointer:], word, syllable)
+                #if line.find('excelsuS') != -1:  # for debug
+                    #print('debug')
                 if line.find('pio festo') != -1:
                     print('continue')
                 if line[-4:-1] == '/()':  # this does not have exceptions so far
@@ -813,11 +860,16 @@ def parse(filex, flag1, flag2, flag3):
                     print("ERROR!")
                 else:
                     for i in line:
-                        if (i.isalpha() or i == ' ') is False:
+                        if(i == '+'):  # '+' cannot be replaced by a space!
+                            line = line.replace(i, '')
+                        elif (i.isalpha() or i == ' ') is False:
                             line = line.replace(i,
                                                 ' ')  # replace anything other than letter or space into a space
                             # print(("lyric" + line))
-                    line = line.replace('  ', ' ')  # multiple space is reduced to one
+                    while(line.find('  ') != -1):
+                        line = line.replace('  ', ' ')  # multiple space is reduced to one
+
+                syllabifierNum = chunk_lyrics(line, word, syllable)  # ptrBegin is not used, since the fuction need the space for the begin and the end to work properly
         line = f1.readline()
 
 if __name__ == "__main__":
