@@ -98,8 +98,6 @@ def add_note(pname, oct, layer, status, ptr, slur):
         dir.setValue('?')  # use ? to indicate unknown pitch
         measure.addChild(dir)
     else:
-
-
         note = pymei.MeiElement('note')
         layer.addChild(note)
         note.addAttribute('pname', '{}'.format(pname))
@@ -173,7 +171,7 @@ def add_lyrics(note, syllable):
     verse.addChild(syl)
 
 
-def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2, slur):
+def print_note(pitchid, octid, layer, ptr, status, syllable, ptr2, slur):
     """
     Add notes to MEI stream
     :param pitchid: Char, pitch.
@@ -181,8 +179,8 @@ def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2, slur):
     :param layer: A hirarchical layer before <note>.
     :param ptr: The id of note
     :param status: The status of the note: is it just note, or note attached with lyrics, or grace note.
-    :param syllabus: The possible syllabus attached to the note
-    :param ptr2: The id  of the syllabus
+    :param syllable: The possible syllable attached to the note
+    :param ptr2: The id  of the syllable
     :return:
     """
 
@@ -197,12 +195,14 @@ def print_note(pitchid, octid, layer, ptr, status, syllabus, ptr2, slur):
         else:
             note, slur = add_note(pitchid[ptr], octid[ptr], layer, status[ptr], ptr, slur) # do not miss the last note!
             return 1, slur
-    elif status[ptr] == 'l':  # syllabus
+    elif status[ptr] == 'l':  # syllable
         if (len(status) - 1 > ptr):
             note, slur = add_note(pitchid[ptr + 1], octid[ptr + 1], layer, status[ptr + 1], ptr, slur)
+            add_lyrics(note, syllable[ptr2])
             return 1, slur
         else:
             note, slur = add_note(pitchid[ptr], octid[ptr], layer, status[ptr], ptr, slur) # do not miss the last note!
+            add_lyrics(note, syllable[ptr2])
             return 1, slur
     return 0, slur
 
@@ -321,12 +321,12 @@ def fill_in_slur_status(status):
     return status
 
 
-def melody_line_to_MEI_func(melody, input, syllabus, faketitle, saint, office):
+def melody_line_to_MEI_func(melody, input, syllable, faketitle, saint, office):
     """
     A conclusive function that uses several sub-functions to format MEI file, and add meta-data to MEI files, except for title.
     :param melody: The original melody line.
     :param input: Two chars that contain the modality and the tonic center.
-    :param syllabus: The string array to store the syllables.
+    :param syllable: The string array to store the syllables.
     :return:
     """
 
@@ -356,7 +356,7 @@ def melody_line_to_MEI_func(melody, input, syllabus, faketitle, saint, office):
             layer = print_measure(measureptr / 4 + 1, section)
         elif measureptr % 4 == 0 and measureptr == 0:
             layer = print_measure(measureptr / 4 + 1, section)
-        increment,slur = print_note(melody, oct, layer, i, status, syllabus, ptr, slur)
+        increment,slur = print_note(melody, oct, layer, i, status, syllable, ptr, slur)
         if status[i] == 'l':
             i += 1
             ptr += 1
@@ -382,6 +382,18 @@ def regulate_name(matrix, line):
     return line
 
 
+def is_non_vowel_syllable(syllable):
+    """
+    Exmaine whether this "syllable" really has a vowel or not.
+    :param syllable:
+    :return:
+    """
+    for i in syllable:
+        if(i == 'a' or i == 'e' or i == 'i' or i == 'o' or i == 'u'):  # If a vowel is ever found, return False
+            return False
+    return True
+
+
 def syllabifier_post_processing(list):
     """
     Fix errors in the syllabifier and output the right syllabification results
@@ -391,11 +403,18 @@ def syllabifier_post_processing(list):
     twovowel = ['ae', 'eu', 'ei', 'ii', 'oe', 'ui']
     for i, element in enumerate(list):
         print(list)
-        if(element == 'ch' or element == 'th'):  # this is not a syllable, need to be combined with the next one
+        if(is_non_vowel_syllable(element)):  # this is not a syllable, need to be combined with the next one
+            if(element == 'ps'):
+                print('debug')
             if (i < len(list) - 1):
                 list[i] = list[i] + list[i + 1]
                 list.remove(list[i + 1])
                 print (list)
+                return list
+            else:
+                list[i - 1] = list[i - 1] + list[i]
+                list.remove(list[i])
+                print(list)
                 return list
         if element.find('eii') != -1:
             print('debug')
@@ -415,6 +434,7 @@ def syllabifier_post_processing(list):
                 list[i] = list[i] + list[i+1]
                 del list[i+1]
                 return list
+
     return list
 
 
@@ -811,7 +831,7 @@ def parse(filex, flag1, flag2, flag3):
                 line = line.replace(' ', '')
                 print(('melody' + line))  # debug
                 (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
-                                                                 syllable, FakeTitle, saint, office)  # line2 = line.replace('.', '')  # melody with syllabus sign
+                                                                 syllable, FakeTitle, saint, office)  # line2 = line.replace('.', '')  # melody with syllable sign
                 if realSyllableNum != syllabifierNum:
                     flag4 = 0
                     counter2 = 0  # calculate the number of syllables produced by the Syllabifier
@@ -850,10 +870,11 @@ def parse(filex, flag1, flag2, flag3):
                 if line[-4:-1] == '/()':  # this does not have exceptions so far
                     endOfLyricsSign = True  # It means the lyrics are complete
                 while line.find('/()') == -1 and endOfLyricsSign is False:  # nasty exceptions
-                    newline = f1.readline()
-                    if(flag2 == 1):
-                        print(newline, file=fsong)
-                    line += newline
+                    #if (re.sub(r' \\$',line) == None):  # exclude these files, since the melody ends with '/', not '/()', exceptions!
+                        newline = f1.readline()
+                        if(flag2 == 1):
+                            print(newline, file=fsong)
+                        line += newline
                 if line.find('luminI.1.1.1;') != -1:  # exception where his encoding is wrong
                     print("unsolved exception")
                 if line.find('/()') == -1 and endOfLyricsSign is True:  # Non-lyric line
