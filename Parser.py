@@ -404,8 +404,6 @@ def syllabifier_post_processing(list):
     for i, element in enumerate(list):
         print(list)
         if(is_non_vowel_syllable(element)):  # this is not a syllable, need to be combined with the next one
-            if(element == 'ps'):
-                print('debug')
             if (i < len(list) - 1):
                 list[i] = list[i] + list[i + 1]
                 list.remove(list[i + 1])
@@ -416,8 +414,6 @@ def syllabifier_post_processing(list):
                 list.remove(list[i])
                 print(list)
                 return list
-        if element.find('eii') != -1:
-            print('debug')
         for vowel in twovowel:  # These cases should be two syllables, not one, for cases like "Reiixxx", only slice once
             #print(vowel)
             if vowel in element:
