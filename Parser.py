@@ -402,6 +402,7 @@ def syllabifier_post_processing(list):
     """
     twovowel = ['ae', 'eu', 'ei', 'ii', 'oe', 'ui']
     for i, element in enumerate(list):
+        element = element.lower()
         print(list)
         if(is_non_vowel_syllable(element)):  # this is not a syllable, need to be combined with the next one
             if (i < len(list) - 1):
@@ -417,6 +418,8 @@ def syllabifier_post_processing(list):
         for vowel in twovowel:  # These cases should be two syllables, not one, for cases like "Reiixxx", only slice once
             #print(vowel)
             if vowel in element:
+                if (element == 'dei' or element == 'mei'):
+                    print('debug')
                 ptr = element.find(vowel)
                 tmp = list[i]
                 list[i] = tmp[:ptr + 1]
@@ -430,6 +433,16 @@ def syllabifier_post_processing(list):
                 list[i] = list[i] + list[i+1]
                 del list[i+1]
                 return list
+        else:
+            print(list[i - 1][-1], list[i][0])  # for debug
+            if i != 0 :  # because if i is 0, i-1 is still 0!
+                if (list[i - 1][-1] == 'e' and list[i][0] == 'e') or (list[i - 1][-1] == 'i' and list[i][0] == 'e') or (
+                        list[i - 1][-1] == 'u' and list[i][0] == 'a') or (list[i - 1][-1] == 'u' and list[i][0] == 'o') or (
+                        list[i - 1][-1] == 'u' and list[i][0] == 'u'):
+                    print("found", list[i - 1][-1], list[i][0])
+                    list[i - 1] = list[i - 1] + list[i]
+                    del list[i]
+                    return list
 
     return list
 
