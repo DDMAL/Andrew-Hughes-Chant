@@ -404,6 +404,20 @@ def syllabifier_post_processing2(list):
         if element == 'i' and (list[i - 1] == 'gu' or list[i - 1] == 'qu'):
             two_syllables_into_one(list, i-1)
             return list
+        if (i < len(list) - 1):
+            if list[i][-1] == 'i' and list[i + 1][0:2] == 'un':  # iun should be one syllable
+                list[i] = list[i] + list[i + 1]
+                del list[i + 1]
+                return list
+        else:
+            if list[i - 1][-1] == 'i' and list[i][0:2] == 'un':  # iun should be one syllable
+                input('iun at the end???')
+                list[i - 1] = list[i - 1] + list[i]
+                del list[i]
+                return list
+
+
+
     return list
 
 def two_syllables_into_one(list, i):
