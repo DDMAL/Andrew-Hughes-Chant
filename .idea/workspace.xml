@@ -18,7 +18,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Andrew-Hughes-Chant$Unittest_SimpleTest_test_num_to_pitch_class_with_oct.coverage" NAME="Unittest SimpleTest.test_num_to_pitch_class_with_oct Coverage Results" MODIFIED="1490563895967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Andrew-Hughes-Chant$TextFile.coverage" NAME="TextFile Coverage Results" MODIFIED="1494619781811" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Andrew-Hughes-Chant$Parser.coverage" NAME="Parser Coverage Results" MODIFIED="1496335147725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Andrew-Hughes-Chant$Parser.coverage" NAME="Parser Coverage Results" MODIFIED="1496347053613" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Andrew-Hughes-Chant$test.coverage" NAME="test Coverage Results" MODIFIED="1490327127489" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
@@ -45,8 +45,8 @@
       <file leaf-file-name="Parser.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Parser.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="98">
-              <caret line="808" column="32" selection-start-line="808" selection-start-column="32" selection-end-line="808" selection-end-column="32" />
+            <state relative-caret-position="27">
+              <caret line="394" column="0" selection-start-line="394" selection-start-column="0" selection-end-line="394" selection-end-column="0" />
               <folding>
                 <element signature="e#96#105#0" expanded="true" />
               </folding>
@@ -520,7 +520,14 @@
       <option name="project" value="LOCAL" />
       <updated>1496336102002</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Fix the exceptions that whenever 'ui' is predeced by 'g' or 'q', it only has one syallble, not two. The number of unaligned chants is 484 (-67).">
+      <created>1496347762789</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1496347762789</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -624,22 +631,11 @@
     <MESSAGE value="Fix #28 partially, now the number of unaligned chants is down to 655 (35 more aligned)" />
     <MESSAGE value="Fix #30, There are 6 cases which use ' /' to end the lyrics line. However, there are 7 cases which both has ' /' and ' /()'. They are all found out and solved." />
     <MESSAGE value="Fix #31, now the number of unaligned chants is 551 (-103)." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix #31, now the number of unaligned chants is 551 (-103)." />
+    <MESSAGE value="Fix the exceptions that whenever 'ui' is predeced by 'g' or 'q', it only has one syallble, not two. The number of unaligned chants is 484 (-67)." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix the exceptions that whenever 'ui' is predeced by 'g' or 'q', it only has one syallble, not two. The number of unaligned chants is 484 (-67)." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Parser.py</url>
-          <line>440</line>
-          <option name="timeStamp" value="126" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Parser.py</url>
-          <line>828</line>
-          <option name="timeStamp" value="140" />
-        </line-breakpoint>
-      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
@@ -650,7 +646,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="141" />
+      <option name="time" value="142" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
@@ -884,8 +880,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Parser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="98">
-          <caret line="808" column="32" selection-start-line="808" selection-start-column="32" selection-end-line="808" selection-end-column="32" />
+        <state relative-caret-position="27">
+          <caret line="394" column="0" selection-start-line="394" selection-start-column="0" selection-end-line="394" selection-end-column="0" />
           <folding>
             <element signature="e#96#105#0" expanded="true" />
           </folding>
