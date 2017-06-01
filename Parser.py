@@ -761,7 +761,6 @@ def parse(filex, flag1, flag2, flag3):
                 endOfLyricsSign = False
                 endOfMelodySign = False  # Update the sign, since it is a new song!
                 # fmei=codecs.open(line[ptr+1:-2]+'.mei','a+','utf-8')
-
                 if counter != 1:  # change the title of the last song
                     # change_song_title(LastDir, FakeTitle, word, '.mei', ChangeDir)
                     if flag2 == 1:
@@ -771,7 +770,6 @@ def parse(filex, flag1, flag2, flag3):
                         numOfSameFileName, doc = change_song_title(doc, LastDir, FakeTitle, word, '.mei', ChangeDir,
                                                               numOfSameFileName, flag1)
                     ChangeDir = False  # only deal with the last file in the last dir
-
                 FakeTitle = tmpTitle
                 # print (line)
                 if flag2 == 1:
@@ -782,6 +780,7 @@ def parse(filex, flag1, flag2, flag3):
         elif (line.find('|.') == -1 and line.find('[File') == -1 and line.find('[file') == -1 and line.find(
                 '|g') == -1 and mark == 4):  # write lines into a txt file
             # print (line)
+            #  Since some words will be missing in the lyrics line, we have to extract lyrics from this line
             if (os.getcwd().find('CH-C') != -1):
                 print('debug')
             signWriteToMei = True  # After writing this line, write to mei file
@@ -815,6 +814,19 @@ def parse(filex, flag1, flag2, flag3):
                         if not ASCII.isalpha():
                             line = line.replace(ASCII, '')
                 line = line.replace('  ', ' ')
+                lyricsLine = line
+                for i in lyricsLine:
+                    if not i.isalpha():
+                        if(i == ' '):
+                            continue  # skip space
+                        lyricsLine = lyricsLine.replace(i,'')
+                lyricsLine = lyricsLine.replace('  ', ' ')
+                lyricsLine = lyricsLine.replace('  ', ' ')
+                print(lyricsLine)
+                if lyricsLine == lyricsLine2 :
+                    syllabifierNum = chunk_lyrics(lyricsLine2, word, syllable)  # ptrBegin is not used, since the fuction need the space for the begin and the end to work properly
+                else:
+                    syllabifierNum = chunk_lyrics(lyricsLine, word, syllable)
                 for i in range(len(line)):
                     if not line[i] in melodyLine:
                         if not line[i].isalpha():
@@ -902,8 +914,7 @@ def parse(filex, flag1, flag2, flag3):
                             # print(("lyric" + line))
                     while(line.find('  ') != -1):
                         line = line.replace('  ', ' ')  # multiple space is reduced to one
-
-                syllabifierNum = chunk_lyrics(line, word, syllable)  # ptrBegin is not used, since the fuction need the space for the begin and the end to work properly
+                lyricsLine2 = line
         line = f1.readline()
 
 if __name__ == "__main__":
