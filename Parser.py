@@ -394,6 +394,35 @@ def is_non_vowel_syllable(syllable):
     return True
 
 
+def syllabifier_post_processing2(list):
+    """
+    Deal with exceptions
+    :param list: the syllabified result that needs to correct
+    :return:
+    """
+    for i, element in enumerate(list):
+        if element == 'i' and (list[i - 1] == 'gu' or list[i - 1] == 'qu'):
+            two_syllables_into_one(list, i-1)
+            return list
+    return list
+
+def two_syllables_into_one(list, i):
+    """
+    Combine two "syllables" into one
+    :param list:
+    :param i:
+    :return:
+    """
+    if (i < len(list) - 1):
+        list[i] = list[i] + list[i + 1]
+        list.remove(list[i + 1])
+        print(list)
+        return list
+    else:
+        list[i - 1] = list[i - 1] + list[i]
+        list.remove(list[i])
+        print(list)
+        return list
 def syllabifier_post_processing(list):
     """
     Fix errors in the syllabifier and output the right syllabification results
@@ -405,16 +434,8 @@ def syllabifier_post_processing(list):
         element = element.lower()
         print(list)
         if(is_non_vowel_syllable(element)):  # this is not a syllable, need to be combined with the next one
-            if (i < len(list) - 1):
-                list[i] = list[i] + list[i + 1]
-                list.remove(list[i + 1])
-                print (list)
-                return list
-            else:
-                list[i - 1] = list[i - 1] + list[i]
-                list.remove(list[i])
-                print(list)
-                return list
+            list = two_syllables_into_one(list, i)
+            return list
         for vowel in twovowel:  # These cases should be two syllables, not one, for cases like "Reiixxx", only slice once
             #print(vowel)
             if vowel in element:
@@ -858,6 +879,7 @@ def parse(filex, flag1, flag2, flag3):
                         if numOfRealSyl[i] != numOfArtiSyl[i]:  # only output different ones
                             syllables = syllabifier.syllabify(word[i])
                             syllables = syllabifier_post_processing(syllables)  # only post-process it when they do not agree!
+                            syllables = syllabifier_post_processing2(syllables)
                             for j in range(counter2, counter2 + numOfArtiSyl[i]):
                                 del syllable[counter2]
                             for j in range(counter2, counter2 + len(syllables)):
