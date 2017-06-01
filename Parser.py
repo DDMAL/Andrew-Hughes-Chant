@@ -400,7 +400,7 @@ def syllabifier_post_processing(list):
     :param list: the syllabified result that needs to correct
     :return:
     """
-    twovowel = ['ae', 'eu', 'ei', 'ii', 'oe', 'ui']
+    twovowel = ['ae', 'eu', 'ei', 'ii', 'oe', 'ui', 'io', 'oa', 'oi']
     for i, element in enumerate(list):
         element = element.lower()
         print(list)
@@ -418,8 +418,6 @@ def syllabifier_post_processing(list):
         for vowel in twovowel:  # These cases should be two syllables, not one, for cases like "Reiixxx", only slice once
             #print(vowel)
             if vowel in element:
-                if (element == 'dei' or element == 'mei'):
-                    print('debug')
                 ptr = element.find(vowel)
                 tmp = list[i]
                 list[i] = tmp[:ptr + 1]
@@ -879,7 +877,13 @@ def parse(filex, flag1, flag2, flag3):
                 if line[-4:-1] == '/()':  # this does not have exceptions so far
                     endOfLyricsSign = True  # It means the lyrics are complete
                 while line.find('/()') == -1 and endOfLyricsSign is False:  # nasty exceptions
-                    #if (re.sub(r' \\$',line) == None):  # exclude these files, since the melody ends with '/', not '/()', exceptions!
+                    if(line.find(' /\n') != -1 and filename.find('(h CAO 1873)') == -1 and filename.find('(h CAO 2593)') == -1
+                       and filename.find('(h CAO 1924)') == -1 and filename.find('(h CAO 2619)') == -1 and filename.find('|g29 =VE.6f') == -1
+                       and filename.find('|g162 =MR5.1d') == -1 and filename.find('|g221 =MA9.8g') == -1):
+                        # exclude these files, since the melody ends with '/', not '/()', exceptions! These cases both contain ' /' and '/()', need to exclude as well.
+                        print('desired result?')  # to find these cases in the debug mode, and can document it if needed
+                        break
+                    else:
                         newline = f1.readline()
                         if(flag2 == 1):
                             print(newline, file=fsong)
