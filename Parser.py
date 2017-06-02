@@ -402,10 +402,10 @@ def syllabifier_post_processing2(list):
     """
     for i, element in enumerate(list):
         element = element.lower()
-        if (element == 'i' or element == 'e') and (list[i - 1] == 'gu'):  # gui? should be one syllable, 21 cases, gue? should be one syllable, 40 cases
+        if (element == 'i' or element == 'e' or element == 'is' or element == 'it') and (list[i - 1] == 'gu'):
             two_syllables_into_one(list, i-1)
             return list
-        if element == 'i' and (list[i - 1] == 'gu' or list[i - 1] == 'qu'):  # gui? should be one syllable, 21 cases, gue? should be one syllable, 40 cases
+        if element == 'i' and (list[i - 1] == 'gu' or list[i - 1] == 'qu'):
             two_syllables_into_one(list, i-1)
             return list
         if (list[i - 1] == 'ni' and element == 'u'):  # niu, 2 cases
