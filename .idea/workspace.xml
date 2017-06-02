@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1c3d948c-e3b7-4fa4-aae8-fc96e21c7369" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Parser.py" afterPath="$PROJECT_DIR$/Parser.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SyllabifierLog.txt" afterPath="$PROJECT_DIR$/SyllabifierLog.txt" />
     </list>
     <ignored path="Andrew-Hughes-Chant.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -535,7 +533,14 @@
       <option name="project" value="LOCAL" />
       <updated>1496351414000</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Fix #28, the rest unresolved cases are all exceptions which require fixture case by case. The number of unaligned chants reduces to 377 (-92).">
+      <created>1496437456639</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1496437456639</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -587,9 +592,9 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297456" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295099" sideWeight="0.5023419" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32876712" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.327852" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27646455" sideWeight="0.49765807" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36485097" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36485097" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295099" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -641,7 +646,8 @@
     <MESSAGE value="Fix #31, now the number of unaligned chants is 551 (-103)." />
     <MESSAGE value="Fix the exceptions that whenever 'ui' is predeced by 'g' or 'q', it only has one syallble, not two. The number of unaligned chants is 484 (-67)." />
     <MESSAGE value="Fix the exceptions that whenever 'iu' is followed by 'n', it should be one syallble, not two. The number of unaligned chants is 469 (-15)." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix the exceptions that whenever 'iu' is followed by 'n', it should be one syallble, not two. The number of unaligned chants is 469 (-15)." />
+    <MESSAGE value="Fix #28, the rest unresolved cases are all exceptions which require fixture case by case. The number of unaligned chants reduces to 377 (-92)." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix #28, the rest unresolved cases are all exceptions which require fixture case by case. The number of unaligned chants reduces to 377 (-92)." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
