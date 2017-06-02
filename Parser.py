@@ -401,20 +401,40 @@ def syllabifier_post_processing2(list):
     :return:
     """
     for i, element in enumerate(list):
-        if element == 'i' and (list[i - 1] == 'gu' or list[i - 1] == 'qu'):
+        element = element.lower()
+        if (element == 'i' or element == 'e') and (list[i - 1] == 'gu'):  # gui? should be one syllable, 21 cases, gue? should be one syllable, 40 cases
             two_syllables_into_one(list, i-1)
             return list
+        if element == 'i' and (list[i - 1] == 'gu' or list[i - 1] == 'qu'):  # gui? should be one syllable, 21 cases, gue? should be one syllable, 40 cases
+            two_syllables_into_one(list, i-1)
+            return list
+        if (list[i - 1] == 'ni' and element == 'u'):  # niu, 2 cases
+            two_syllables_into_one(list, i - 1)
+            return list
+        if element == 'us' and list [i - 1] == 'i' and list [i - 2] == 'cu':  # cu-ius, 53 cases
+            two_syllables_into_one(list, i - 1)
+            return list
+        if element == 'u' and list [i - 1] == 'di' and list [i - 2] == 'a':  # ad-iu, 34 cases
+            two_syllables_into_one(list, i - 1)
+            print(list)
+            return list
+        if element == 'nio' and list [i - 1] == 'iu' and list [i - 2] == 'ie': # ni-o, 2 cases
+            list[i] = 'ni'
+            list.insert(i + 1, 'o')
+            return list
+        if element.find('iei') != -1:
+            ptr = element.find('iei')
+            list[i] = list[i][ptr + 1]  # ?i
+            list.insert(i + 1, 'e')  # ?i-e
+            list.insert(i + 2, 'i')  # ?i-e-(i)
+            return list
+
         if (i < len(list) - 1):
             if list[i][-1] == 'i' and list[i + 1][0:2] == 'un':  # iun should be one syllable
                 list[i] = list[i] + list[i + 1]
                 del list[i + 1]
                 return list
-        else:
-            if list[i - 1][-1] == 'i' and list[i][0:2] == 'un':  # iun should be one syllable
-                input('iun at the end???')
-                list[i - 1] = list[i - 1] + list[i]
-                del list[i]
-                return list
+        # there is no case where i reach the last element, so that's why we do not put a 'else' case
 
 
 
@@ -891,7 +911,7 @@ def parse(filex, flag1, flag2, flag3):
                     counter2 = 0  # calculate the number of syllables produced by the Syllabifier
                     for i in range(numofword):
                         if numOfRealSyl[i] != numOfArtiSyl[i]:  # only output different ones
-                            syllables = syllabifier.syllabify(word[i])
+                            syllables = syllabifier.syllabify(word[i].lower())  # remember the Syllabifier will not work if the last letter is the upper case!
                             syllables = syllabifier_post_processing(syllables)  # only post-process it when they do not agree!
                             syllables = syllabifier_post_processing2(syllables)
                             for j in range(counter2, counter2 + numOfArtiSyl[i]):
