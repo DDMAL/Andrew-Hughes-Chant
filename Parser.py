@@ -73,6 +73,7 @@ def print_measure(id, section):
     measure.addChild(staff)
     staff.addChild(layer)
     measure.addAttribute('n', '{}'.format(id))
+    measure.addAttribute('right', 'invis')  # not to show the barline
     return layer
 
 
@@ -408,7 +409,7 @@ def syllabifier_post_processing2(list):
         if element == 'i' and (list[i - 1] == 'gu' or list[i - 1] == 'qu'):
             two_syllables_into_one(list, i-1)
             return list
-        if (list[i - 1] == 'ni' and element == 'u'):  # niu, 2 cases 
+        if (list[i - 1] == 'ni' and element == 'u'):  # niu, 2 cases
             two_syllables_into_one(list, i - 1)
             return list
         if element == 'us' and list [i - 1] == 'i' and list [i - 2] == 'cu':  # cu-ius, 53 cases
