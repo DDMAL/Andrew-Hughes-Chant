@@ -322,7 +322,7 @@ def fill_in_slur_status(status):
     return status
 
 
-def melody_line_to_MEI_func(melody, input, syllable, faketitle, saint, office):
+def melody_line_to_MEI_func(melody, input, syllable, faketitle, saint, office, lyrics):
     """
     A conclusive function that uses several sub-functions to format MEI file, and add meta-data to MEI files, except for title.
     :param melody: The original melody line.
@@ -335,7 +335,7 @@ def melody_line_to_MEI_func(melody, input, syllable, faketitle, saint, office):
     ptr = 0
     mode = input[0]
     final = input[1].lower()
-    doc = add_meta_data(doc=doc, mode=mode, final=final, saint=saint, office=office)
+    doc = add_meta_data(doc=doc, mode=mode, final=final, saint=saint, office=office, lyrics=lyrics)
     #if final not in 'abcdefg':
         #print("final not found")
         #input("??")
@@ -853,7 +853,7 @@ def parse(filex, flag1, flag2, flag3):
                 '|g') == -1 and mark == 4):  # write lines into a txt file
             # print (line)
             #  Since some words will be missing in the lyrics line, we have to extract lyrics from this line
-            if (os.getcwd().find('CH-C') != -1):
+            if (os.getcwd().find('CH-D-') != -1):
                 print('debug')
             signWriteToMei = True  # After writing this line, write to mei file
             line = re.sub(r'\(!\d\)', '', line)  # need to use '\' to match '()' to replace (!1) exception
@@ -895,7 +895,7 @@ def parse(filex, flag1, flag2, flag3):
                 lyricsLine = lyricsLine.replace('  ', ' ')
                 lyricsLine = lyricsLine.replace('  ', ' ')
                 print(lyricsLine)
-                if lyricsLine == lyricsLine2 :
+                if lyricsLine.lower() == lyricsLine2.lower() :
                     syllabifierNum = chunk_lyrics(lyricsLine2, word, syllable)  # ptrBegin is not used, since the fuction need the space for the begin and the end to work properly
                 else:
                     syllabifierNum = chunk_lyrics(lyricsLine, word, syllable)
@@ -934,11 +934,12 @@ def parse(filex, flag1, flag2, flag3):
                             if 'gu' in syllables:
                                 print('debug')
                             syllables = syllabifier_post_processing2(syllables)
-                            #syllables = capitalize_hyphen(syllables, lyricsLine)
+
                             for j in range(counter2, counter2 + numOfArtiSyl[i]):
                                 del syllable[counter2]
                             for j in range(counter2, counter2 + len(syllables)):
                                 syllable.insert(j, syllables[j - counter2])
+                            numOfArtiSyl[i] = len(syllables)  # correct the number of the syllables
                             if(len(syllables) != numOfRealSyl[i]):  # real discrepancies
                                 if(flag4 == 0):
                                     print('---------------------------------------', file=log)
@@ -957,9 +958,10 @@ def parse(filex, flag1, flag2, flag3):
                             counter2 += len(syllables)
                         else:
                             counter2 += numOfArtiSyl[i]
-                    (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
+                    #syllable = capitalize_hyphen(syllable, lyricsLine, numOfArtiSyl)
+                (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
                                                                      syllable, FakeTitle, saint,
-                                                                     office)  # line2 = line.replace('.', '')  # melody with syllable sign
+                                                                     office, lyricsLine)  # line2 = line.replace('.', '')  # melody with syllable sign
                     # Do this after the syllabifier has been corrected
             elif line[0:2] == '/ ' or line[2:4] == '/ ':  # lyric line
                 pointer = line.find('/ ')  # for exception: some lines begins with space than '/ '
