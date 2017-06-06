@@ -395,6 +395,22 @@ def is_non_vowel_syllable(syllable):
     return True
 
 
+'''def capitalize_hyphen(syllables, lyricsLine):
+    """
+    Capitalize the first letter of the sentence, adding hyphen between syllables within a word.
+    :param syllables:
+    :param lyricsLine:
+    :return:
+    """
+    for i in range(finallength):  # assume that the title is no longer than 10 words
+        if word[i][-1].isupper():
+            break
+    realtitle = ''
+    for j in range(0, i + 1):
+        realtitle = realtitle + word[j] + '_'
+    realtitle = realtitle.lower()
+    realtitle = regulate_name('_', realtitle)'''
+
 def syllabifier_post_processing2(list):
     """
     Deal with exceptions
@@ -905,8 +921,9 @@ def parse(filex, flag1, flag2, flag3):
                         line = line.replace(line[i], ' ')
                 line = line.replace(' ', '')
                 print(('melody' + line))  # debug
-                (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
-                                                                 syllable, FakeTitle, saint, office)  # line2 = line.replace('.', '')  # melody with syllable sign
+                status = [' ' for i in range(len(line))]  # Fake status, only want to get realSyllableNum
+                realSyllableNum = 0
+                status, realSyllableNum = fill_in_status(line, status, realSyllableNum)  # only want to get realSyllableNum
                 if realSyllableNum != syllabifierNum:
                     flag4 = 0
                     counter2 = 0  # calculate the number of syllables produced by the Syllabifier
@@ -914,7 +931,10 @@ def parse(filex, flag1, flag2, flag3):
                         if numOfRealSyl[i] != numOfArtiSyl[i]:  # only output different ones
                             syllables = syllabifier.syllabify(word[i].lower())  # remember the Syllabifier will not work if the last letter is the upper case!
                             syllables = syllabifier_post_processing(syllables)  # only post-process it when they do not agree!
+                            if 'gu' in syllables:
+                                print('debug')
                             syllables = syllabifier_post_processing2(syllables)
+                            #syllables = capitalize_hyphen(syllables, lyricsLine)
                             for j in range(counter2, counter2 + numOfArtiSyl[i]):
                                 del syllable[counter2]
                             for j in range(counter2, counter2 + len(syllables)):
@@ -937,6 +957,10 @@ def parse(filex, flag1, flag2, flag3):
                             counter2 += len(syllables)
                         else:
                             counter2 += numOfArtiSyl[i]
+                    (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
+                                                                     syllable, FakeTitle, saint,
+                                                                     office)  # line2 = line.replace('.', '')  # melody with syllable sign
+                    # Do this after the syllabifier has been corrected
             elif line[0:2] == '/ ' or line[2:4] == '/ ':  # lyric line
                 pointer = line.find('/ ')  # for exception: some lines begins with space than '/ '
                 #if line.find('excelsuS') != -1:  # for debug
