@@ -395,21 +395,30 @@ def is_non_vowel_syllable(syllable):
     return True
 
 
-'''def capitalize_hyphen(syllables, lyricsLine):
+def capitalize_hyphen(syllables, lyricsLine, numberofsyl):
     """
     Capitalize the first letter of the sentence, adding hyphen between syllables within a word.
     :param syllables:
     :param lyricsLine:
     :return:
     """
-    for i in range(finallength):  # assume that the title is no longer than 10 words
-        if word[i][-1].isupper():
-            break
-    realtitle = ''
-    for j in range(0, i + 1):
-        realtitle = realtitle + word[j] + '_'
-    realtitle = realtitle.lower()
-    realtitle = regulate_name('_', realtitle)'''
+    accunumberofsyl = 0  # overall the number of syllables
+    word = lyricsLine.split()
+    syllables[0] = syllables[0][0].upper() + syllables[0][1:]
+    for i, item in enumerate(word):
+        accunumberofsyl += numberofsyl[i]
+        if(item[-1].isupper() and len(syllables) > accunumberofsyl):
+            syllables[accunumberofsyl] = syllables[accunumberofsyl][0].upper() + syllables[accunumberofsyl][1:]
+    accunumberofsyl = 0  # finished capitalization, start adding hyphen
+    for i, item in enumerate(numOfArtiSyl):
+        lastaccunumberofsyl = accunumberofsyl
+        accunumberofsyl += item
+        for j in range(lastaccunumberofsyl, accunumberofsyl):
+            if(lastaccunumberofsyl + 1 == accunumberofsyl):
+                break  # just one syllable, no need for hyphen
+            if j != accunumberofsyl - 1:
+                syllables[j] = syllables[j] + '-'  # add the hyphens!
+    return syllables
 
 def syllabifier_post_processing2(list):
     """
@@ -958,7 +967,7 @@ def parse(filex, flag1, flag2, flag3):
                             counter2 += len(syllables)
                         else:
                             counter2 += numOfArtiSyl[i]
-                    #syllable = capitalize_hyphen(syllable, lyricsLine, numOfArtiSyl)
+                syllable = capitalize_hyphen(syllable, lyricsLine, numOfArtiSyl)
                 (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
                                                                      syllable, FakeTitle, saint,
                                                                      office, lyricsLine)  # line2 = line.replace('.', '')  # melody with syllable sign
