@@ -678,6 +678,8 @@ def parse(filex, flag1, flag2, flag3):
     cwd = os.getcwd()
     ChangeDir = False
     log = open('SyllabifierLog.txt', 'w')
+    log2 = open('Log_lyrics_mismatch.txt', 'w')
+    log3 = open('Log_Special_word.txt', 'w')
     endOfMelodySign = False
     endOfLyricsSign = False  # There will be exceptions where the line is not complete within a line
     print(filex)
@@ -940,10 +942,7 @@ def parse(filex, flag1, flag2, flag3):
                         if numOfRealSyl[i] != numOfArtiSyl[i]:  # only output different ones
                             syllables = syllabifier.syllabify(word[i].lower())  # remember the Syllabifier will not work if the last letter is the upper case!
                             syllables = syllabifier_post_processing(syllables)  # only post-process it when they do not agree!
-                            if 'gu' in syllables:
-                                print('debug')
                             syllables = syllabifier_post_processing2(syllables)
-
                             for j in range(counter2, counter2 + numOfArtiSyl[i]):
                                 del syllable[counter2]
                             for j in range(counter2, counter2 + len(syllables)):
@@ -961,12 +960,23 @@ def parse(filex, flag1, flag2, flag3):
                                 print(numOfRealSyl[i], "syllables from Hughes' encoding", file=log)
                                 print(numOfArtiSyl[i], "syllables from the Syllabifier:", syllables,
                                       file=log)
-                            # str = input("What do you think about it?")
-                            # print(str)
-                            # line = line.replace(',', '')
                             counter2 += len(syllables)
                         else:
                             counter2 += numOfArtiSyl[i]
+                if lyricsLine.lower() != lyricsLine2.lower():
+                    print('---------------------------------------', file=log2)
+                    print(filename + os.getcwd(), file=log2)
+                    print('lyrics in the lyric line :' + lyricsLine2, file=log2)
+                    print('lyrics in the melody line:' + lyricsLine, file=log2)
+                wordtmp = lyricsLine.split()
+                flag5 = 0
+                for i, item in enumerate(wordtmp):
+                    if (item[0].isupper()):
+                        if(flag5 == 0):
+                            print('---------------------------------------', file=log3)
+                            print(filename + os.getcwd(), file=log3)
+                            flag5 = 1
+                        print('special word:' + item, file=log3)
                 syllable = capitalize_hyphen(syllable, lyricsLine, numOfArtiSyl)
                 (realSyllableNum, doc) = melody_line_to_MEI_func(line, mode,
                                                                      syllable, FakeTitle, saint,
