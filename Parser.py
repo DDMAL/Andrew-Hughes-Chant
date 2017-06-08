@@ -409,6 +409,7 @@ def capitalize_hyphen(syllables, lyricsLine, numberofsyl):
         accunumberofsyl += numberofsyl[i]
         if(item[-1].isupper() and len(syllables) > accunumberofsyl):
             syllables[accunumberofsyl] = syllables[accunumberofsyl][0].upper() + syllables[accunumberofsyl][1:]
+            syllables[accunumberofsyl - 1] = syllables[accunumberofsyl - 1][:-1] + syllables[accunumberofsyl - 1][-1].upper()
     accunumberofsyl = 0  # finished capitalization, start adding hyphen
     for i, item in enumerate(numOfArtiSyl):
         lastaccunumberofsyl = accunumberofsyl
