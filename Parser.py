@@ -240,8 +240,12 @@ def num_to_pitch_class_with_oct(num, final, oct):
             num = num[0:ptr] + '4' + num[ptr + 1:]
             oct[ptr] -= 1
         elif num[ptr] == '=':
-            num = num[0:ptr] + num[ptr - 1] + num[ptr + 1:]
-            oct[ptr] = oct[ptr - 1]
+            if num[ptr - 1].isalpha():  # need to deal with this case
+                num = num[0:ptr] + num[ptr - 1] + num[ptr + 1:]
+                oct[ptr] = oct[ptr - 1]
+            else:
+                num = num[0:ptr] + num[ptr - 2] + num[ptr + 1:]
+                oct[ptr] = oct[ptr - 2]
         if num[ptr].isdigit():  # convert digit into pitch-class
             m = int(num[ptr])  # current digit
             ii = i
@@ -410,6 +414,8 @@ def capitalize_hyphen(syllables, lyricsLine, numberofsyl):
         if(item[-1].isupper() and len(syllables) > accunumberofsyl):
             syllables[accunumberofsyl] = syllables[accunumberofsyl][0].upper() + syllables[accunumberofsyl][1:]
             syllables[accunumberofsyl - 1] = syllables[accunumberofsyl - 1][:-1] + syllables[accunumberofsyl - 1][-1].upper()
+        if item[0].isupper():  # words begin with a upper case letter should be reserved
+            syllables[accunumberofsyl - numberofsyl[i]] = syllables[accunumberofsyl - numberofsyl[i]][0].upper() + syllables[accunumberofsyl - numberofsyl[i]][1:]
     accunumberofsyl = 0  # finished capitalization, start adding hyphen
     for i, item in enumerate(numOfArtiSyl):
         lastaccunumberofsyl = accunumberofsyl
@@ -820,8 +826,9 @@ def parse(filex, flag1, flag2, flag3):
             if line.find('|g') != -1:  # find the individual song
                 # if(counter != 0): fmei.close()
                 filename = line  # reserve the original file name
-                if filename.find('|g343 =MV10.8v') != -1:
-                    print(filename)
+                if filename.find('|g92 =MR3.3e') != -1:
+                    if (os.getcwd().find('CH-B') != -1):
+                        print(filename)
                 line = line.replace(' ', '')
                 ptr2 = line.find('.')
                 mode = line[ptr2 + 1:ptr2 + 3]  # get the mode and tonal center
