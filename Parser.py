@@ -412,10 +412,10 @@ def capitalize_hyphen(syllables, lyricsLine, numberofsyl):
     for i, item in enumerate(word):
         accunumberofsyl += numberofsyl[i]
         if(item[-1].isupper() and len(syllables) > accunumberofsyl):
-            syllables[accunumberofsyl] = syllables[accunumberofsyl][0].upper() + syllables[accunumberofsyl][1:]
+            #syllables[accunumberofsyl] = syllables[accunumberofsyl][0].upper() + syllables[accunumberofsyl][1:]
             syllables[accunumberofsyl - 1] = syllables[accunumberofsyl - 1][:-1] + syllables[accunumberofsyl - 1][-1].upper()
-        if item[0].isupper():  # words begin with a upper case letter should be reserved
-            syllables[accunumberofsyl - numberofsyl[i]] = syllables[accunumberofsyl - numberofsyl[i]][0].upper() + syllables[accunumberofsyl - numberofsyl[i]][1:]
+        if item[0].isupper():  # words begin with a upper case letter indicates the end of the previous phrase, and the next word is the new beginning of the new phrase, therefore the first letter of the next word is capitalized
+            syllables[accunumberofsyl - numberofsyl[i] + 1] = syllables[accunumberofsyl - numberofsyl[i] + 1][0].upper() + syllables[accunumberofsyl - numberofsyl[i] + 1][1:]
     accunumberofsyl = 0  # finished capitalization, start adding hyphen
     for i, item in enumerate(numOfArtiSyl):
         lastaccunumberofsyl = accunumberofsyl
