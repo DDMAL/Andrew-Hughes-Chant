@@ -72,7 +72,7 @@ def print_measure(id, section):
     section.addChild(measure)
     measure.addChild(staff)
     staff.addChild(layer)
-    measure.addAttribute('n', '{}'.format(id))
+    #measure.addAttribute('n', '{}'.format(id))  #remove the id number of the measure
     measure.addAttribute('right', 'invis')  # not to show the barline
     return layer
 
@@ -414,8 +414,8 @@ def capitalize_hyphen(syllables, lyricsLine, numberofsyl):
         if(item[-1].isupper() and len(syllables) > accunumberofsyl):
             #syllables[accunumberofsyl] = syllables[accunumberofsyl][0].upper() + syllables[accunumberofsyl][1:]
             syllables[accunumberofsyl - 1] = syllables[accunumberofsyl - 1][:-1] + syllables[accunumberofsyl - 1][-1].upper()
-        if item[0].isupper():  # words begin with a upper case letter indicates the end of the previous phrase, and the next word is the new beginning of the new phrase, therefore the first letter of the next word is capitalized
-            syllables[accunumberofsyl - numberofsyl[i] + 1] = syllables[accunumberofsyl - numberofsyl[i] + 1][0].upper() + syllables[accunumberofsyl - numberofsyl[i] + 1][1:]
+        if item[0].isupper():  # words begin with a upper case letter indicates the beginning of the new phrase
+            syllables[accunumberofsyl - numberofsyl[i]] = syllables[accunumberofsyl - numberofsyl[i]][0].upper() + syllables[accunumberofsyl - numberofsyl[i]][1:]
     accunumberofsyl = 0  # finished capitalization, start adding hyphen
     for i, item in enumerate(numOfArtiSyl):
         lastaccunumberofsyl = accunumberofsyl
