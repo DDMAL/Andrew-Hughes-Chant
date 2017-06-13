@@ -33,7 +33,11 @@ There are cases where the mensual notations cannot be rendered, so some common m
 
 (1) ```Plica``` is represented as ```grace note```, so when you see the score has a grace note, it actually indicates a plica.
 
-(2) ```Ligature``` is represented as ```slur```.
+(2) ```Ligature``` is represented as ```slur```. However, some syllables where there are multiple notes do not have a ```slur``` (```ligature```), because the original encoding does not have them. 
 
-Also, to indicate a sentence, the first letter and the last letter of the sentence are capitalized.
+Also, to indicate a sentence, the first letter is capitalized. 
+
+The last letter of a word being capitalized indicates rhyme. 
+
+
 
