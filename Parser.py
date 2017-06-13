@@ -141,7 +141,7 @@ def add_grace_note(pname, oct, layer, status, ptr, slur):
     note.addAttribute('dur', '8')
     note.addAttribute('stem.dir', 'up')
     note.addAttribute('stem.len', '0')
-    note.addAttribute('grace', 'acc')
+    note.addAttribute('grace', 'unacc')
     if(status[ptr] == 'i'):  # slur needs to begin with the next note
         note.setId(status[ptr + 1] + str(ptr + 1))
         slur = pymei.MeiElement('slur')
