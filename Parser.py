@@ -42,7 +42,7 @@ def add_meta_data(doc, mode=None, final=None, title=None, office=None, saint=Non
         TITLES = doc.getElementsByName('title')
         TITLE = TITLES[0]
         TITLE.setValue(title) # add title
-    TITLESTATEMENTS = doc.getElementsByName('fileDesc')
+    TITLESTATEMENTS = doc.getElementsByName('fileDesc')  # add meta-data correctly
     TITLESTATEMENT = TITLESTATEMENTS[0]
     if mode != None :
         TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'mode', mode)
@@ -172,6 +172,19 @@ def add_lyrics(note, syllable):
     verse.addChild(syl)
 
 
+def add_blank_space(layer, syllable, nextsyllable):
+    """
+    Add a blank space using <space> to indicate a new phrase
+    :param syllable:
+    :param nextsyllable:
+    :return:
+    """
+    if nextsyllable[0].isupper() and syllable[-1] != '-':  # add a blank area, if the next syllable indicates a new phrase
+        space = pymei.MeiElement('space')  # cannot use sb, bug in Verovio!
+        space.setId('new phrase')
+        layer.addChild(space)
+
+
 def print_note(pitchid, octid, layer, ptr, status, syllable, ptr2, slur):
     """
     Add notes to MEI stream
@@ -200,10 +213,12 @@ def print_note(pitchid, octid, layer, ptr, status, syllable, ptr2, slur):
         if (len(status) - 1 > ptr):
             note, slur = add_note(pitchid[ptr + 1], octid[ptr + 1], layer, status[ptr + 1], ptr, slur)
             add_lyrics(note, syllable[ptr2])
+            add_blank_space(layer, syllable[ptr2], syllable[ptr2 + 1])
             return 1, slur
         else:
             note, slur = add_note(pitchid[ptr], octid[ptr], layer, status[ptr], ptr, slur) # do not miss the last note!
             add_lyrics(note, syllable[ptr2])
+            add_blank_space(layer, syllable[ptr2], syllable[ptr2 + 1])
             return 1, slur
     return 0, slur
 
@@ -1039,10 +1054,10 @@ if __name__ == "__main__":
         if os.path.isfile(filex) and (os.path.splitext(filex)[1][1:].lower() in 'txt') and (filex.find('v2-CHNT') != -1) is True:
             print(filex)
             print("Pasring the file, please specify the function you want, 1 means yes; 0 means no")
-            flag1 = int(input("Generate file structure?"))
-            flag2 = int(input("Generate text files?"))
-            flag3 = int(input("Generate MEI structure?"))
-            #flag1 = 1
-            #flag2 = 1
-            #flag3 = 1
+            #flag1 = int(input("Generate file structure?"))
+            #flag2 = int(input("Generate text files?"))
+            #flag3 = int(input("Generate MEI structure?"))
+            flag1 = 1
+            flag2 = 1
+            flag3 = 1
             parse(filex, flag1, flag2, flag3)
