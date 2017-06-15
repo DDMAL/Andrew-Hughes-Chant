@@ -25,6 +25,18 @@ def add_each_meta_data(parent, elementname, content):
     return parent
 
 
+def add_each_meta_data_as_text(text, elementname, content):
+    """
+    Add each meta-data to text
+    :param parent:
+    :param element:
+    :param content:
+    :return:
+    """
+    text = text + elementname + ':' + content + '###'
+    return text
+
+
 def add_meta_data(doc, mode=None, final=None, title=None, office=None, saint=None, feast=None, lyrics=None):
     """
     Add meta-data to MEI file.
@@ -42,20 +54,24 @@ def add_meta_data(doc, mode=None, final=None, title=None, office=None, saint=Non
         TITLES = doc.getElementsByName('title')
         TITLE = TITLES[0]
         TITLE.setValue(title) # add title
-    TITLESTATEMENTS = doc.getElementsByName('fileDesc')  # add meta-data correctly
-    TITLESTATEMENT = TITLESTATEMENTS[0]
+    meiHeadTITLESTATEMENTS = doc.getElementsByName('meiHead')  # add meta-data correctly
+    meiHeadTITLESTATEMENT = meiHeadTITLESTATEMENTS[0]
+    EXTMETA = pymei.MeiElement('extMeta')
+    meiHeadTITLESTATEMENT.addChild(EXTMETA)
+    TITLESTATEMENT = ''
     if mode != None :
-        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'mode', mode)
+        TITLESTATEMENT = add_each_meta_data_as_text(TITLESTATEMENT, 'mode', mode)
     if final != None :
-        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'final', final)
+        TITLESTATEMENT = add_each_meta_data_as_text(TITLESTATEMENT, 'final', final)
     if office != None:
-        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'office', office)
+        TITLESTATEMENT = add_each_meta_data_as_text(TITLESTATEMENT, 'office', office)
     if saint != None:
-        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'saint', saint)
+        TITLESTATEMENT = add_each_meta_data_as_text(TITLESTATEMENT, 'saint', saint)
     if feast != None:
-        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'feast', feast)
+        TITLESTATEMENT = add_each_meta_data_as_text(TITLESTATEMENT, 'feast', feast)
     if lyrics != None:
-        TITLESTATEMENT = add_each_meta_data(TITLESTATEMENT, 'lyrics', lyrics)
+        TITLESTATEMENT = add_each_meta_data_as_text(TITLESTATEMENT, 'lyrics', lyrics)
+    EXTMETA.setValue(TITLESTATEMENT)
     return doc
 
 
