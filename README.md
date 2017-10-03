@@ -1,5 +1,5 @@
 # Andrew-Hughes-Chant
-
+Andrew Hughes. Canadian musicologist, born in London 3 Aug 1937; MA (Oxford) 1964, Ph.D. (Oxford) 1964. An authority on medieval liturgy and music. More of his information is available [here](http://www.thecanadianencyclopedia.ca/en/article/andrew-hughes-emc/).
 # What are these files?
 
 There are several files to address: 
