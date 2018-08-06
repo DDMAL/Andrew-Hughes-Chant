@@ -1,6 +1,6 @@
 # Andrew-Hughes-Chant
-A collection of chants compiled by the legendary musicologist Andrew Hughes.
 
+Andrew Hughes. Canadian musicologist, born in London 3 Aug 1937; MA (Oxford) 1964, Ph.D. (Oxford) 1964. An authority on medieval liturgy and music. More of his information is available [here](http://www.thecanadianencyclopedia.ca/en/article/andrew-hughes-emc/).
 # What are these files?
 
 There are several files to address: 
@@ -33,11 +33,10 @@ There are cases where the mensual notations cannot be rendered, so some common m
 
 (1) ```Plica``` is represented as ```grace note```, so when you see the score has a grace note, it actually indicates a plica.
 
+
 (2) ```Ligature``` is represented as ```slur```. However, some syllables where there are multiple notes do not have a ```slur``` (```ligature```), because the original encoding does not have them. 
 
 Also, to indicate a sentence, the first letter is capitalized. 
 
 The last letter of a word being capitalized indicates rhyme. 
-
-
 
