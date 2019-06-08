@@ -4,7 +4,9 @@ Andrew Hughes. Canadian musicologist, born in London 3 Aug 1937; MA (Oxford) 196
 
 In his research career, he published "Late Medieval Liturgical Offices (LMLO)", which contained more than 200 late medieval church feasts, and more than 5000 chant melodies.
 
-Now, all chant melodies are available, which can be represented as musical scores for music theoretic, musicological and academic usage. In this page, you will learn:
+Now, all chant melodies are available, which can be represented as musical scores for music theoretic, musicological and academic usage. The work was presented at the Music Encoding Conference, 2018. You can view the slides [here](https://drive.google.com/file/d/1-BKGfBQlGWAk_PXHPZeUyAUCjHvKH3Gv/view?usp=sharing). 
+
+In this page, you will learn:
 
 * How these chant melodies are organized hierarchically.
 * How to view a single chant melody as musical score.
