@@ -5,8 +5,8 @@ import os
 import codecs
 import sys
 from cltk.stem.latin.syllabifier import Syllabifier
-sys.path.append('/Users/yaolongju/Documents/Projects/libmei/python') #This is for Mac Mini
-#sys.path.append('/Users/yaolong/Documents/Projects/libmei/python') #This is for the vm on Rescue
+# sys.path.append('/Users/yaolongju/Documents/Projects/libmei/python') #This is for Mac Mini
+# sys.path.append('/Users/yaolong/Documents/Projects/libmei/python') #This is for the vm on Rescue
 import pymei
 import re
 
@@ -724,6 +724,7 @@ def parse(filex, flag1, flag2, flag3):
     mark = 0  # not find a head yet
     f1 = open(filex, 'r', encoding='cp437')  # the actual encoding is cp437, not iso8859!
     line = f1.readline()
+    found = False
     if (flag1 == 0):
         if os.path.exists("text_file") is False:
             os.mkdir('text_file')
@@ -731,6 +732,22 @@ def parse(filex, flag1, flag2, flag3):
     while line:
         line = line.replace('«', '<<')
         line = line.replace('»', '>>')
+        # the following section replaces calls are used to deal with MEI exceptions
+        line = line.replace('·ecce', 'ecce')  # exception
+        line = line.replace('·ut', 'ut')  # exception
+        line = line.replace('≈', ',')  # the former and the latter both represent ornamental notes
+        # the above section replaces calls are used to deal with MEI exceptions
+        if '\ ' in line:  # here to deal with '2.2.2. tu' exception, where the dot should disappear
+            match = re.search(r'\d\. [a-z]', line)
+            if match is not None:
+                begin_pos, end_pos = match.span()
+                line = line[0:begin_pos] + match.group().replace('.', '') + line[end_pos:]
+        # if '|g73 =LVb.4e (d LX)' in line:
+        #     print('debug')
+        #     found = True
+        # elif found is False:
+        #     line = f1.readline()
+        #     continue
         if (line.find('[File') != -1 or line.find('[file') != -1) and (mark == 0 or mark == 4):
             print(line)  # show all the volumes
             line = line.replace(' ', '')  # The name of directory can not have space!
