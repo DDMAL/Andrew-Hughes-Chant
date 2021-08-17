@@ -733,8 +733,18 @@ def parse(filex, flag1, flag2, flag3):
         line = line.replace('«', '<<')
         line = line.replace('»', '>>')
         # the following section replaces calls are used to deal with MEI exceptions
-        line = line.replace('·ecce', 'ecce')  # exception
-        line = line.replace('·ut', 'ut')  # exception
+        line = line.replace('·ecce', 'ecce')  # exception for "Ecce_sacerdos_magnus_qui_in_diebus_suis_placuit"
+        line = line.replace('·ut', 'ut')  # exception for "Mater_castigacior"
+        line = line.replace('.345.;', '.345;')  # exception for "Pium_ibi_emisit_spiritum"
+        line = line.replace('..543', '.543')  # exception for "Fructum_dedit"
+        line = line.replace('bat.1.3.2.', 'bat.1.3.2')  # exception for "Homo"
+        line = line.replace('..6.543', '.6.543')  # exception for "Extra_prudens_sicut_serpens"
+        line = line.replace('1..121', '1.121')  # exception for "Que_dum_oraret_sedulo"
+        line = line.replace('...3.4..', '.3.4')  # exception for "Vigi_celitus"
+        line = line.replace('...ente', 'ente')  # exception for "Ente_de_scopulis_milite"
+        line = line.replace('.201.1. ', '.201.1 ')  # exception for "Monumenti"
+        line = line.replace('inferi.1.1.', 'inferi.1.1')  # exception for "A_porta_inferi_erue_domine_animas_eorum_dum"
+
         line = line.replace('≈', ',')  # the former and the latter both represent ornamental notes
         # the above section replaces calls are used to deal with MEI exceptions
         if '\ ' in line:  # here to deal with '2.2.2. tu' exception, where the dot should disappear
