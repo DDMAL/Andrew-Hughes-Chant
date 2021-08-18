@@ -744,7 +744,6 @@ def parse(filex, flag1, flag2, flag3):
         line = line.replace('...ente', 'ente')  # exception for "Ente_de_scopulis_milite"
         line = line.replace('.201.1. ', '.201.1 ')  # exception for "Monumenti"
         line = line.replace('inferi.1.1.', 'inferi.1.1')  # exception for "A_porta_inferi_erue_domine_animas_eorum_dum"
-
         line = line.replace('≈', ',')  # the former and the latter both represent ornamental notes
         # the above section replaces calls are used to deal with MEI exceptions
         if '\ ' in line:  # here to deal with '2.2.2. tu' exception, where the dot should disappear
@@ -938,6 +937,7 @@ def parse(filex, flag1, flag2, flag3):
                 print(line, file=fsong, end='')
             if line[0:2] == '\ ' or line[2:4] == '\ ':  # this is melody with lyric line
                 print(line)
+                line = line.replace('.,', ',.')  # plica sign should be before the syllable indicator, not behind
                 if line.find('\()')!= -1 or line.find('\ ()') != -1:  # This ensures that the melody line is finished
                     endOfMelodySign = True
                 while line.find('\()') == -1 and endOfMelodySign is False:  # nasty exceptions
