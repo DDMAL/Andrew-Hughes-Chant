@@ -938,6 +938,8 @@ def parse(filex, flag1, flag2, flag3):
             if line[0:2] == '\ ' or line[2:4] == '\ ':  # this is melody with lyric line
                 print(line)
                 line = line.replace('.,', ',.')  # plica sign should be before the syllable indicator, not behind
+                line = line.replace('.\'', '.')
+                # ".'" changed to ".", not sure what ' entails after period, # ignore for now
                 if line.find('\()')!= -1 or line.find('\ ()') != -1:  # This ensures that the melody line is finished
                     endOfMelodySign = True
                 while line.find('\()') == -1 and endOfMelodySign is False:  # nasty exceptions
@@ -1096,7 +1098,7 @@ if __name__ == "__main__":
         """
         if os.path.isfile(filex) and (os.path.splitext(filex)[1][1:].lower() in 'txt') and (filex.find('v2-CHNT') != -1) is True:
             print(filex)
-            print("Pasring the file, please specify the function you want, 1 means yes; 0 means no")
+            # print("Pasring the file, please specify the function you want, 1 means yes; 0 means no")
             #flag1 = int(input("Generate file structure?"))
             #flag2 = int(input("Generate text files?"))
             #flag3 = int(input("Generate MEI structure?"))
