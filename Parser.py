@@ -730,6 +730,7 @@ def parse(filex, flag1, flag2, flag3):
             os.mkdir('text_file')
         os.chdir('text_file')
     while line:
+        # if '|g52 =MR8.8g' not in line: continue
         line = line.replace('«', '<<')
         line = line.replace('»', '>>')
         # the following section replaces calls are used to deal with MEI exceptions
@@ -937,6 +938,8 @@ def parse(filex, flag1, flag2, flag3):
                 print(line, file=fsong, end='')
             if line[0:2] == '\ ' or line[2:4] == '\ ':  # this is melody with lyric line
                 print(line)
+                if '.\'' in line:
+                    print('debug')
                 line = line.replace('.,', ',.')  # plica sign should be before the syllable indicator, not behind
                 line = line.replace('.\'', '.')
                 # ".'" changed to ".", not sure what ' entails after period, # ignore for now
